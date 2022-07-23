@@ -1,7 +1,8 @@
 import constants.constants
-import file_reader.File_Reader
+import file_reader.file_Reader.file_Reader
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions.col
+import file_cleanser.modifying_datatypes.{changeDatatype, convertStoT}
+
 object main_file {
   def main(args: Array[String]): Unit= {
     val spark: SparkSession = SparkSession.getActiveSession.getOrElse(
@@ -11,13 +12,18 @@ object main_file {
         .enableHiveSupport()
         .getOrCreate()
     )
-    val clickstream_df = File_Reader.file_Reader(spark, constants.path_clickstream, "csv")
-    //clickstream_df.show(30)
 
-    clickstream_df.withColumn("id",col("id").cast("int"))
-    clickstream_df.printSchema()
-    val item_df = File_Reader.file_Reader(spark, constants.path_item, "csv")
-    //item_df.show(30)
+    /************CLICKSTREAM DATASET***************/
+    var clickstream_df = file_Reader(spark, constants.path_clickstream, "csv")
+    clickstream_df = convertStoT(clickstream_df, "event_timestamp", "MM/dd/yyyy HH:mm")
+    clickstream_df = changeDatatype(clickstream_df, constants.datatype_clickstream)
+
+    //val distinctValueDf = clickstream_df.select(clickstream_df("is_add_to_cart")).distinct().show()
+
+    /*************ITEM DATASET************/
+    var item_df = file_Reader(spark, constants.path_item, "csv")
+    item_df = changeDatatype(item_df, constants.datatype_item)
+    
   }
 
 }
