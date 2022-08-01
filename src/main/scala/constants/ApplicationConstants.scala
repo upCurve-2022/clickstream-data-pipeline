@@ -1,6 +1,6 @@
 package constants
 
-object AppConstants {
+object ApplicationConstants {
   val CLICK_STREAM_PATH = "data/clickstream_log.csv"
   val ITEM_DATA_PATH = "data/item_data.csv"
 

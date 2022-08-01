@@ -1,10 +1,11 @@
 package cleanser
 
-import constants.AppConstants
-import exceptions.Exceptions.{ColumnNotFoundException,DataframeIsEmptyException}
+import constants.ApplicationConstants
+import exceptions.Exceptions.{ColumnNotFoundException, DataframeIsEmptyException}
+import utils.ApplicationUtils.checkExceptions
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions.{coalesce, col, current_timestamp, desc, lower, row_number, to_timestamp}
+import org.apache.spark.sql.functions.{coalesce, col, current_timestamp, desc, exp, lower, row_number, to_timestamp}
 import org.apache.spark.sql.types.BooleanType
 
 import scala.collection.mutable.ListBuffer
@@ -14,37 +15,22 @@ object FileCleanser {
   /**************MODIFYING COLUMN DATA TYPES*********************/
   //converts string to timestamp format
   def stringToTimestamp(inputDF : DataFrame, colName: String, inputFormat : String) : DataFrame = {
-    if(inputDF.count() == 0) {
-      throw DataframeIsEmptyException("The dataframe is empty")
-    }
-    if(!inputDF.columns.contains(colName)){
-      throw ColumnNotFoundException("The specified column does not exist")
-    }
+    checkExceptions(inputDF, colName)
     val outputDF = inputDF.withColumn(colName, to_timestamp(col(colName),inputFormat))
     outputDF
   }
 
   //converts the string to lowercase
   def toLowercase(inputDF : DataFrame, colName: String) : DataFrame = {
-    if(inputDF.count() == 0) {
-      throw DataframeIsEmptyException("The dataframe is empty")
-    }
-    if(!inputDF.columns.contains(colName)){
-      throw ColumnNotFoundException("The specified column does not exist")
-    }
+    checkExceptions(inputDF, colName)
     val outputDF = inputDF.withColumn(colName, lower(col(colName)))
     outputDF
   }
 
   //modifies the datatype of the columns in a dataframe
   def colDatatypeModifier(inputDF : DataFrame, colDatatype : List[(String, String)]) : DataFrame = {
-    if(inputDF.count() == 0) {
-      throw DataframeIsEmptyException("The dataframe is empty")
-    }
     val colList = colDatatype.map(x => x._1)
-    if(!checkColumn(inputDF, colList)){
-      throw ColumnNotFoundException("The specified column does not exist")
-    }
+    colList.foreach { (element: String) => checkExceptions(inputDF, element) }
     //val dataTypeList = colDatatype.map(x => x._2)
     val outputDF = inputDF.select(colDatatype.map{case(c,t) => inputDF.col(c).cast(t)}:_*)
     outputDF
@@ -53,12 +39,7 @@ object FileCleanser {
   /******************REMOVING DUPLICATES FROM THE DATASET******************/
   //function to remove duplicates
   def removeDuplicates(inputDF: DataFrame, primaryKeyCols : Seq[String], orderByCol: String) : DataFrame = {
-    if(inputDF.count() == 0) {
-      throw DataframeIsEmptyException("The dataframe is empty")
-    }
-    if(!checkColumn(inputDF, primaryKeyCols.toList) || !inputDF.columns.contains(orderByCol)){
-      throw ColumnNotFoundException("The specified column does not exist")
-    }
+    primaryKeyCols.toList.foreach{ (element: String) => checkExceptions(inputDF, element) }
     val outputDF = inputDF.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col):_*).orderBy(desc(orderByCol))))
       .filter(col("rn") === 1).drop("rn")
     outputDF
@@ -68,19 +49,14 @@ object FileCleanser {
   /*********************REMOVING NULLS FROM THE DATASET****************************/
   //removing null rows when columns matches not null keys
   def nullRemoval(inputDF: DataFrame, notNullKeys:Seq[String]): DataFrame = {
-    if(inputDF.count() == 0) {
-      throw DataframeIsEmptyException("The dataframe is empty")
-    }
-    if(!checkColumn(inputDF, notNullKeys.toList)){
-      throw ColumnNotFoundException("The specified column does not exist")
-    }
+    notNullKeys.toList.foreach{ (element: String) => checkExceptions(inputDF, element) }
     val outputDF = inputDF.na.drop("any",notNullKeys)
     outputDF
   }
 
   //
   def isBooleanPresent(inputDF:DataFrame):List[String]={
-    if(inputDF.count() == 0) {
+    if(inputDF.count() == 0){
       throw DataframeIsEmptyException("The dataframe is empty")
     }
     var list = new ListBuffer[String]()
@@ -93,33 +69,23 @@ object FileCleanser {
 
   //
   def handleTimeStamp(inputDF:DataFrame): DataFrame ={
-    if(inputDF.count() == 0) {
+    if(inputDF.count() == 0){
       throw DataframeIsEmptyException("The dataframe is empty")
     }
-    val newDf1 = inputDF.withColumn(AppConstants.TIME_STAMP_COL, coalesce(col(AppConstants.TIME_STAMP_COL), current_timestamp()))
-    val outputDF = newDf1.withColumn(AppConstants.TIME_STAMP_COL, to_timestamp(col(AppConstants.TIME_STAMP_COL),AppConstants.INPUT_TIME_STAMP_FORMAT))
+    val newDf1 = inputDF.withColumn(ApplicationConstants.TIME_STAMP_COL, coalesce(col(ApplicationConstants.TIME_STAMP_COL), current_timestamp()))
+    val outputDF = newDf1.withColumn(ApplicationConstants.TIME_STAMP_COL, to_timestamp(col(ApplicationConstants.TIME_STAMP_COL),ApplicationConstants.INPUT_TIME_STAMP_FORMAT))
     outputDF
   }
 
   //
   def handleBoolean(inputDF:DataFrame, list:List[String]): DataFrame={
-    if(inputDF.count() == 0) {
-      throw DataframeIsEmptyException("The dataframe is empty")
-    }
-    if(!checkColumn(inputDF, list)){
-      throw ColumnNotFoundException("The specified column does not exist")
-    }
+    list.toList.foreach{ (element: String) => checkExceptions(inputDF, element) }
     fillBoolean(inputDF,list.isEmpty,list)
   }
 
   //
   def fillBoolean(inputDF:DataFrame, bool: Boolean, list: List[String]): DataFrame = {
-    if(inputDF.count() == 0) {
-      throw DataframeIsEmptyException("The dataframe is empty")
-    }
-    if(!checkColumn(inputDF, list)){
-      throw ColumnNotFoundException("The specified column does not exist")
-    }
+    list.foreach{ (element: String) => checkExceptions(inputDF, element) }
     if (bool) {
       inputDF
     } else {
@@ -129,12 +95,7 @@ object FileCleanser {
 
   //
   def fillUnknown(inputDF:DataFrame, notNullKeys:Seq[String]): DataFrame ={
-    if(inputDF.count() == 0) {
-      throw DataframeIsEmptyException("The dataframe is empty")
-    }
-    if(!checkColumn(inputDF, notNullKeys.toList)){
-      throw ColumnNotFoundException("The specified column does not exist")
-    }
+    notNullKeys.toList.foreach{ (element: String) => checkExceptions(inputDF, element) }
     val col = inputDF.schema.fieldNames.toSeq
     val colSet=col.toSet
     val notNullSet=notNullKeys.toSet
@@ -143,15 +104,5 @@ object FileCleanser {
     val filledUnknownDataFrame:DataFrame = inputDF.na.fill("unknown",nonPrimaries)
     filledUnknownDataFrame
   }
-
-  //
-  def checkColumn(inputDF:DataFrame, columns: List[String]) : Boolean ={
-    val check = columns.map(x => inputDF.columns.contains(x))
-    if(check.contains(false)){
-      return false
-    }
-    true
-  }
-
 
 }
