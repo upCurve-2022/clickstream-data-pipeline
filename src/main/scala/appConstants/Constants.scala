@@ -15,4 +15,13 @@ object Constants {
     ("redirection_source", "string"),
     ("is_add_to_cart", "boolean"),
     ("is_order_placed", "boolean"))
+
+  val DataTypeItem = List(
+    ("item_id", "string"),
+    ("item_price", "double"),
+    ("product_type", "string"),
+    ("department_name", "string"),
+    ("vendor_id", "int"),
+    ("vendor_name", "string"))
+
 }
