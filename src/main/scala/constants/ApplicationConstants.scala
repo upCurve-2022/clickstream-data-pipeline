@@ -1,8 +1,6 @@
 package constants
 
-import org.apache.spark.sql.SparkSession
-
-object AppConstants {
+object ApplicationConstants {
   val CLICK_STREAM_PATH = "data/clickstream_log.csv"
   val ITEM_DATA_PATH = "data/item_data.csv"
 
@@ -14,6 +12,12 @@ object AppConstants {
 
   val CLICK_STREAM_OUTPUT_PATH = "data/output_data/clickstream_data.csv"
   val ITEM_OUTPUT_PATH = "data/output_data/item_data.csv"
+
+  val INPUT_TIME_STAMP_FORMAT = "MM/dd/yyyy HH:mm"
+  val TIME_STAMP_COL = "event_timestamp"
+  val REDIRECTION_COL = "redirection_source"
+
+  val FILE_FORMAT = "csv"
 
   val CLICK_STREAM_DATATYPE = List(
     ("id", "int"),
