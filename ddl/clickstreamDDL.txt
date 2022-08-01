@@ -10,3 +10,12 @@ val clickstreamSchema=StructType(Array(
                StructField("is_order_placed", "BooleanType",true)
                ))
 
+create `id` INT NOT NULL,
+`event_timestamp` TIMESTAMP,
+`device_type` STRING,
+`session_id` STRING NOT NULL,
+`visitor_id` STRING ,
+`item_id` STRING NOT NULL,
+`redirection_source` STRING,
+`is_add_to_cart` BOOLEAN,
+`is_order_placed` BOOLEAN
