@@ -8,10 +8,10 @@ import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{coalesce, col, current_timestamp, desc, exp, lower, row_number, to_timestamp}
 import org.apache.spark.sql.types.BooleanType
 
+import scala.collection.mutable.ListBuffer
+
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-
-import scala.collection.mutable.ListBuffer
 
 object FileCleanser {
   
@@ -70,8 +70,5 @@ object FileCleanser {
     outputDF
 
   }
-
-
-
 
 }
