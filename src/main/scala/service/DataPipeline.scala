@@ -14,30 +14,20 @@ object DataPipeline {
   def execute(): Unit = {
     //reading click stream dataset
     val clickStreamDF = fileReader(ApplicationConstants.CLICK_STREAM_PATH, ApplicationConstants.FILE_FORMAT)
-
+    
+    //handling null values
+    val rowEliminatedDF = removeRows(clickStreamDF, ApplicationConstants.CLICK_STREAM_NOT_NULL_KEYS)
+    val valueFilledDF = fillValues(rowEliminatedDF, ApplicationConstants.CLICK_STREAM_NOT_NULL_KEYS, ApplicationConstants.CLICK_STREAM_BOOLEAN, ApplicationConstants.CLICK_STREAM_TIMESTAMP)
+    
     //converting string to timestamp format
-    val convertedDF = stringToTimestamp(clickStreamDF, ApplicationConstants.TIME_STAMP_COL, ApplicationConstants.INPUT_TIME_STAMP_FORMAT)
+    val convertedDF = stringToTimestamp(valueFilledDF, ApplicationConstants.TIME_STAMP_COL, ApplicationConstants.INPUT_TIME_STAMP_FORMAT)
 
     //converting redirection column into lowercase
     val modifiedDF = toLowercase(convertedDF, ApplicationConstants.REDIRECTION_COL)
 
     //modifying the data types of the columns of the click stream dataset
     val modifiedClickStreamDF = colDatatypeModifier(modifiedDF, ApplicationConstants.CLICK_STREAM_DATATYPE)
-
-    //Checking for flag columns
-    val flagColList = isBooleanPresent(modifiedClickStreamDF)
-
-    val flagFilledData = handleBoolean(modifiedClickStreamDF, flagColList)
-
-    //deal with the timeStamp Explicitly
-    val timeStampData = handleTimeStamp(flagFilledData)
-
-    //remove rows as per the primaries
-    val nullRemovalDataFrame = nullRemoval(timeStampData, ApplicationConstants.CLICK_STREAM_NOT_NULL_KEYS)
-
-    //overwrite the remaining col with unknown
-    val nullRemovalWithUnknownFilledValues = fillUnknown(nullRemovalDataFrame, ApplicationConstants.CLICK_STREAM_NOT_NULL_KEYS)
-
+    
     //remove duplicates from the click stream dataset
     val clickStreamDFWithoutDuplicates = removeDuplicates(nullRemovalWithUnknownFilledValues, ApplicationConstants.CLICK_STREAM_PRIMARY_KEYS, ApplicationConstants.TIME_STAMP_COL)
 
@@ -51,12 +41,13 @@ object DataPipeline {
 
     //reading item dataset
     val itemDF = fileReader(ApplicationConstants.ITEM_DATA_PATH, ApplicationConstants.FILE_FORMAT)
+    
+    //handling null values for item dataset
+    val rowEliminatedItemDF = removeRows(itemDF, ApplicationConstants.ITEM_NOT_NULL_KEYS)
+    val valueFilledItemDF = fillValues(rowEliminatedItemDF, ApplicationConstants.ITEM_NOT_NULL_KEYS, ApplicationConstants.ITEM_DATA_BOOLEAN, ApplicationConstants.ITEM_DATA_TIMESTAMP)
 
     //modifying the data types of the columns of the item dataset
-    val modifiedItemDF = colDatatypeModifier(itemDF, ApplicationConstants.ITEM_DATATYPE)
-
-    //removing nulls from the item dataset
-    val itemNotNullDF = nullRemoval(modifiedItemDF, ApplicationConstants.ITEM_NOT_NULL_KEYS)
+    val modifiedItemDF = colDatatypeModifier(valueFilledItemDF, ApplicationConstants.ITEM_DATATYPE)
 
     //remove duplicates from the item dataset
     val itemDFWithoutDuplicates = removeDuplicates(itemNotNullDF, ApplicationConstants.ITEM_PRIMARY_KEYS, "item_id")
