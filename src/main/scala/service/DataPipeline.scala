@@ -57,7 +57,7 @@ object DataPipeline {
 
     //writing the resultant data of item dataset to a file
     writeToOutputPath(itemDFWithoutDuplicates, ApplicationConstants.ITEM_OUTPUT_PATH, ApplicationConstants.FILE_FORMAT)
-    
+
   }
 
 }
