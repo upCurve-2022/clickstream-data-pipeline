@@ -1,5 +1,5 @@
-package appConstants
-object Constants {
+package constants
+object ApplicationConstants {
   val ClickStreamPath="data/clickstream_log.csv"
   val ItemDataPath="data/item_data.csv"
 
@@ -24,4 +24,9 @@ object Constants {
     ("vendor_id", "int"),
     ("vendor_name", "string"))
 
+  val ClickStreamBoolean = Seq("is_add_to_cart","is_order_placed")
+  val ItemDataBoolean = Seq()
+
+  val clickStreamTimestamp = Seq("event_timestamp")
+  val ItemDataTimestamp = Seq()
 }
