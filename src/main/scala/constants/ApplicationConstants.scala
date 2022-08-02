@@ -11,12 +11,12 @@ object ApplicationConstants {
   //constants for null values handling
   val CLICK_STREAM_NOT_NULL_KEYS = Seq("id", "session_id","item_id")
   val ITEM_NOT_NULL_KEYS = Seq("item_id","vendor_id")
-  
-  val CLICK_STREAM_NOT_NULL_KEYS = Seq("id", "session_id","item_id")
-  val ITEM_NOT_NULL_KEYS = Seq("item_id","vendor_id")
 
   val CLICK_STREAM_BOOLEAN = Seq("is_add_to_cart","is_order_placed")
   val ITEM_DATA_BOOLEAN = Seq()
+  
+  val CLICK_STREAM_TIMESTAMP = Seq("event_timestamp")
+  val ITEM_DATA_TIMESTAMP = Seq()
 
   //
   val CLICK_STREAM_OUTPUT_PATH = "data/output_data/clickstream_data.csv"
