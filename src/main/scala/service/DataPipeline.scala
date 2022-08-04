@@ -20,12 +20,16 @@ object DataPipeline {
     //reading click stream dataset
     val clickStreamDF = fileReader(clickStreamInputPath, ApplicationConstants.FILE_FORMAT)
     
-    //handling null values
+    //Removing rows when primary columns are null
     val rowEliminatedDF = removeRows(clickStreamDF, ApplicationConstants.CLICK_STREAM_NOT_NULL_KEYS)
-    val valueFilledDF = fillValues(rowEliminatedDF, ApplicationConstants.CLICK_STREAM_NOT_NULL_KEYS, ApplicationConstants.CLICK_STREAM_BOOLEAN, ApplicationConstants.CLICK_STREAM_TIMESTAMP)
+    
+    //Replacing null in other rows
+    val timestampFilledDF = fillCurrentTime(rowEliminatedDF, ApplicationConstants.CLICK_STREAM_TIMESTAMP)
+    val falseFilledDF = fillCustomValues(timestampFilledDF, ApplicationConstants.CLICK_STREAM_BOOLEAN, "FALSE")
+    val unknownFilledDF = fillCustomValues(falseFilledDF, ApplicationConstants.CLICK_STREAM_STRING, "UNKNOWN")
     
     //converting string to timestamp format
-    val convertedDF = stringToTimestamp(valueFilledDF, ApplicationConstants.TIME_STAMP_COL, ApplicationConstants.INPUT_TIME_STAMP_FORMAT)
+    val convertedDF = stringToTimestamp(unknownFilledDF, ApplicationConstants.TIME_STAMP_COL, ApplicationConstants.INPUT_TIME_STAMP_FORMAT)
 
     //converting redirection column into lowercase
     val modifiedDF = toLowercase(convertedDF, ApplicationConstants.REDIRECTION_COL)
@@ -43,16 +47,18 @@ object DataPipeline {
     writeToOutputPath(clickStreamDFWithoutDuplicates, clickStreamOutputPath, ApplicationConstants.FILE_FORMAT)
 
     /** **************ITEM DATASET*************** */
-
     //reading item dataset
     val itemDF = fileReader(itemDataInputPath, ApplicationConstants.FILE_FORMAT)
     
     //handling null values for item dataset
     val rowEliminatedItemDF = removeRows(itemDF, ApplicationConstants.ITEM_NOT_NULL_KEYS)
-    val valueFilledItemDF = fillValues(rowEliminatedItemDF, ApplicationConstants.ITEM_NOT_NULL_KEYS, ApplicationConstants.ITEM_DATA_BOOLEAN, ApplicationConstants.ITEM_DATA_TIMESTAMP)
+    
+    //Replacing null in other rows
+    val minusFilledItemDF = fillCustomValues(rowEliminatedItemDF, ApplicationConstants.ITEM_DATA_NUMERIC, "-1")
+    val unknownFilledItemDF = fillCustomValues(minusFilledItemDF, ApplicationConstants.ITEM_DATA_STRING, "UNKNOWN")
 
     //modifying the data types of the columns of the item dataset
-    val modifiedItemDF = colDatatypeModifier(valueFilledItemDF, ApplicationConstants.ITEM_DATATYPE)
+    val modifiedItemDF = colDatatypeModifier(unknownFilledItemDF, ApplicationConstants.ITEM_DATATYPE)
 
     //remove duplicates from the item dataset
     val itemDFWithoutDuplicates = removeDuplicates(modifiedItemDF, ApplicationConstants.ITEM_PRIMARY_KEYS, "item_id")
