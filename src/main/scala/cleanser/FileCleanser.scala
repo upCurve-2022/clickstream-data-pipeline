@@ -16,25 +16,23 @@ import java.time.format.DateTimeFormatter
 object FileCleanser {
   
   /*********************REMOVING NULLS FROM THE DATASET****************************/
-  //1.removing rows when primary key is null
+  //Handling null values - removing rows when primary key is null
   def removeRows(df: DataFrame, primaryColumns:Seq[String]): DataFrame = {
     val rowEliminatedDf = df.na.drop("any",primaryColumns)
     rowEliminatedDf
   }
 
-  //2.filling null values
-  def fillValues(df:DataFrame, primaryColumns:Seq[String], booleanColumns:Seq[String], timestampColumns:Seq[String]):DataFrame = {
-    //filling false
-    val booleanFilledDf:DataFrame = df.na.fill("FALSE":String,booleanColumns)
+  //Handling null values - filling null value with a custom value
+  def fillCustomValues(df:DataFrame, columnsSeq:Seq[String], customVal:String):DataFrame = {
+    val filledDf:DataFrame = df.na.fill(customVal,columnsSeq)
+    filledDf
+  }
 
-    //filling current timestamp
-    val currentTime = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm").format(LocalDateTime.now)
-    val timestampFilledDf:DataFrame = booleanFilledDf.na.fill(currentTime:String,timestampColumns)
-
-    //filling unknown
-    val remainingColumns = (df.columns.toSet).diff(((primaryColumns.toSet).union(booleanColumns.toSet)).union(timestampColumns.toSet)).toSeq
-    val unknownFilledDf:DataFrame = timestampFilledDf.na.fill("unknown":String,remainingColumns)
-    unknownFilledDf
+  //Handling null values -filling null value with the current timestamp
+  def fillCurrentTime(df:DataFrame, columnsSeq:Seq[String]):DataFrame = {
+     val currentTime = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm").format(LocalDateTime.now)
+     val timestampFilledDf:DataFrame = df.na.fill(currentTime:String,columnsSeq)
+     timestampFilledDf
   }
 
   /**************MODIFYING COLUMN DATA TYPES*********************/
