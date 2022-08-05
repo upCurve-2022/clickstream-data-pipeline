@@ -17,7 +17,7 @@ object ApplicationUtils {
   }
 
   //checking for exceptions
-  def checkExceptions(inputDF : DataFrame, colName : String): Unit = {
+  def checkExceptions(inputDF : DataFrame, colName :String): Unit = {
     if(inputDF.count() == 0) {
       throw DataframeIsEmptyException("The dataframe is empty")
     }

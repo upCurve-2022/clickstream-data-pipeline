@@ -17,22 +17,26 @@ object FileCleanser {
   
   /*********************REMOVING NULLS FROM THE DATASET****************************/
   //1.removing rows when primary key is null
-  def removeRows(df: DataFrame, primaryColumns:Seq[String]): DataFrame = {
-    val rowEliminatedDf = df.na.drop("any",primaryColumns)
+  def removeRows(inputDF: DataFrame, primaryColumns:Seq[String]): DataFrame = {
+    primaryColumns.foreach{ (element: String) => checkExceptions(inputDF, element) }
+    val rowEliminatedDf = inputDF.na.drop("any",primaryColumns)
     rowEliminatedDf
   }
 
   //2.filling null values
-  def fillValues(df:DataFrame, primaryColumns:Seq[String], booleanColumns:Seq[String], timestampColumns:Seq[String]):DataFrame = {
+  def fillValues(inputDF:DataFrame, primaryColumns:Seq[String], booleanColumns:Seq[String], timestampColumns:Seq[String]):DataFrame = {
+    primaryColumns.foreach{ (element: String) => checkExceptions(inputDF, element) }
+    booleanColumns.foreach{ (element: String) => checkExceptions(inputDF, element) }
+    timestampColumns.foreach{ (element: String) => checkExceptions(inputDF, element) }
     //filling false
-    val booleanFilledDf:DataFrame = df.na.fill("FALSE":String,booleanColumns)
+    val booleanFilledDf:DataFrame = inputDF.na.fill("FALSE":String,booleanColumns)
 
     //filling current timestamp
     val currentTime = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm").format(LocalDateTime.now)
     val timestampFilledDf:DataFrame = booleanFilledDf.na.fill(currentTime:String,timestampColumns)
 
     //filling unknown
-    val remainingColumns = (df.columns.toSet).diff(((primaryColumns.toSet).union(booleanColumns.toSet)).union(timestampColumns.toSet)).toSeq
+    val remainingColumns = (inputDF.columns.toSet).diff(((primaryColumns.toSet).union(booleanColumns.toSet)).union(timestampColumns.toSet)).toSeq
     val unknownFilledDf:DataFrame = timestampFilledDf.na.fill("unknown":String,remainingColumns)
     unknownFilledDf
   }
@@ -56,7 +60,6 @@ object FileCleanser {
   def colDatatypeModifier(inputDF : DataFrame, colDatatype : List[(String, String)]) : DataFrame = {
     val colList = colDatatype.map(x => x._1)
     colList.foreach { (element: String) => checkExceptions(inputDF, element) }
-    //val dataTypeList = colDatatype.map(x => x._2)
     val outputDF = inputDF.select(colDatatype.map{case(c,t) => inputDF.col(c).cast(t)}:_*)
     outputDF
   }
