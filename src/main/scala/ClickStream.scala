@@ -1,33 +1,24 @@
-import exceptions.Exceptions.{ColumnNotFoundException, DataframeIsEmptyException}
-import org.apache.spark.sql.AnalysisException
+import exceptions.Exceptions.{ColumnNotFoundException, DataframeIsEmptyException, FileReaderException, FileWriterException}
 import service.DataPipeline.{execute, log}
+
 import scala.sys.exit
 
 object ClickStream {
-  def main(args: Array[String]): Unit= {
+  def main(args: Array[String]): Unit = {
 
-    try{
+    try {
       //performing reader and cleanser operations on both dataset
       execute()
 
-    }catch {
-      case ex : NoClassDefFoundError =>
-        log.error("Spark Session is not defined")
+    } catch {
+      case ex: FileReaderException => log.error("File Reader Exception: " + ex.message)
         exit(1)
-      case ex1 : UnsupportedOperationException =>
-        log.error("Conf file is not configured in the correct way")
+      case ex: DataframeIsEmptyException => log.error("DataFrameIsEmptyException:" + ex.message)
         exit(1)
-      case ex2 : DataframeIsEmptyException =>
-        log.error(ex2.message)
+      case ex: ColumnNotFoundException => log.error("ColumnNotFoundException:" + ex.message)
         exit(1)
-      case ex3 : ColumnNotFoundException =>
-        log.error(ex3.message)
-        exit(1)
-      case ex4 : AnalysisException => {
-        log.error(ex4.message)
-        exit(1)
-      }
-      //case ex5 :
+      case ex: FileWriterException => log.error("FileWriterException:" + ex.message)
+
     }
 
 
