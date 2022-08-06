@@ -9,7 +9,6 @@ import java.io.File
 object ApplicationUtils {
 
   //configuration
-
   def configuration():Config = {
     val parsedConfig = ConfigFactory.parseFile(new File("config/local.conf"))
     val appConf: Config = ConfigFactory.load(parsedConfig)
@@ -30,18 +29,6 @@ object ApplicationUtils {
     spark
   }
 
-  //Creating the spark session
-    def createSparkSession(): SparkSession = {
-      implicit val spark: SparkSession = SparkSession.getActiveSession.getOrElse(
-      SparkSession.builder
-      .appName(configuration().getString("spark.app.name"))
-      .master(configuration().getString("spark.app.master"))
-      .enableHiveSupport()
-      .getOrCreate()
-      )
-      spark
-    }
-
   //checking for exceptions
   def check(inputDF : DataFrame, colName :String): Unit = {
     if(inputDF.count() == 0) {
@@ -49,13 +36,5 @@ object ApplicationUtils {
     } else if (!inputDF.columns.contains(colName))
       throw ColumnNotFoundException("The specified column does not exist")
   }
-
-
-  //creating spark session
-  //implicit val sparkSession: SparkSession = SparkSession.builder().appName(appName).master(appMaster).getOrCreate()
-
-
-
-
 
 }
