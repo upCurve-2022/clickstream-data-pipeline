@@ -9,42 +9,39 @@ import java.io.File
 object ApplicationUtils {
 
   //configuration
-  val parsedConfig = ConfigFactory.parseFile(new File("C:\\Users\\DELL\\Desktop\\sparkAssignment\\stageproject\\clickstream-data-pipeline\\config\\local.conf"))
-  val appConf: Config = ConfigFactory.load(parsedConfig)
-  val appName = appConf.getString("spark.app.name")
-  val appMaster = appConf.getString("spark.app.master")
 
-  //creating spark session
-  implicit val sparkSession: SparkSession = SparkSession.builder().appName(appName).master(appMaster).getOrCreate()
+  def configuration():Config = {
+    val parsedConfig = ConfigFactory.parseFile(new File("config/local.conf"))
+    val appConf: Config = ConfigFactory.load(parsedConfig)
+//    val appName = appConf.getString("spark.app.name")
+//    val appMaster = appConf.getString("spark.app.master")
+    appConf
+  }
 
-
-
-
+  //Creating the spark session
+    def createSparkSession(): SparkSession = {
+      implicit val spark: SparkSession = SparkSession.getActiveSession.getOrElse(
+      SparkSession.builder
+      .appName(configuration().getString("spark.app.name"))
+      .master(configuration().getString("spark.app.master"))
+      .enableHiveSupport()
+      .getOrCreate()
+      )
+      spark
+    }
 
   //checking for exceptions
-
+  def check(inputDF : DataFrame, colName : String){
+    if(inputDF.count() == 0) {
       throw DataframeIsEmptyException("The dataframe is empty")
-    }
-    else if (!inputDF.columns.contains(colName))
+    } else if (!inputDF.columns.contains(colName))
       throw ColumnNotFoundException("The specified column does not exist")
   }
 
 
+  //creating spark session
+  //implicit val sparkSession: SparkSession = SparkSession.builder().appName(appName).master(appMaster).getOrCreate()
 
-
-
-
-  //Creating the spark session
-  //  def createSparkSession(): SparkSession = {
-  //    val spark: SparkSession = SparkSession.getActiveSession.getOrElse(
-  //    SparkSession.builder
-  //    .appName(appName)
-  //    .master(appMaster)
-  //    .enableHiveSupport()
-  //    .getOrCreate()
-  //    )
-  //    spark
-  //  }
 
 
 
