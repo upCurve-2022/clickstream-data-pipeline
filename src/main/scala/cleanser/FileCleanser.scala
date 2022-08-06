@@ -16,23 +16,7 @@ import java.time.format.DateTimeFormatter
 object FileCleanser {
   
   /*********************REMOVING NULLS FROM THE DATASET****************************/
-  //Handling null values - removing rows when primary key is null
-  def removeRows(df: DataFrame, primaryColumns:Seq[String]): DataFrame = {
-    val rowEliminatedDf = df.na.drop("any",primaryColumns)
-    rowEliminatedDf
-  }
 
-  //Handling null values - filling null value with a custom value
-  def fillCustomValues(df:DataFrame, columnsSeq:Seq[String], customVal:String):DataFrame = {
-    val filledDf:DataFrame = df.na.fill(customVal,columnsSeq)
-    filledDf
-  }
-
-  //Handling null values -filling null value with the current timestamp
-  def fillCurrentTime(df:DataFrame, columnsSeq:Seq[String]):DataFrame = {
-     val currentTime = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm").format(LocalDateTime.now)
-     val timestampFilledDf:DataFrame = df.na.fill(currentTime:String,columnsSeq)
-     timestampFilledDf
   }
 
   /**************MODIFYING COLUMN DATA TYPES*********************/
@@ -54,7 +38,6 @@ object FileCleanser {
   def colDatatypeModifier(inputDF : DataFrame, colDatatype : List[(String, String)]) : DataFrame = {
     val colList = colDatatype.map(x => x._1)
     colList.foreach { (element: String) => checkExceptions(inputDF, element) }
-    //val dataTypeList = colDatatype.map(x => x._2)
     val outputDF = inputDF.select(colDatatype.map{case(c,t) => inputDF.col(c).cast(t)}:_*)
     outputDF
   }

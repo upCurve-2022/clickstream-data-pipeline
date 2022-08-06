@@ -67,8 +67,7 @@ object DataPipeline {
     log.warn("Total items in the item dataset " + itemDFWithoutDuplicates.count())
 
     //writing the resultant data of item dataset to a file
-    writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
-    
+
   }
 
 }
