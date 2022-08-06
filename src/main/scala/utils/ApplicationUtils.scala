@@ -30,8 +30,19 @@ object ApplicationUtils {
     spark
   }
 
-  //checking for exceptions
+  //Creating the spark session
+    def createSparkSession(): SparkSession = {
+      implicit val spark: SparkSession = SparkSession.getActiveSession.getOrElse(
+      SparkSession.builder
+      .appName(configuration().getString("spark.app.name"))
+      .master(configuration().getString("spark.app.master"))
+      .enableHiveSupport()
+      .getOrCreate()
+      )
+      spark
+    }
 
+  //checking for exceptions
   def check(inputDF : DataFrame, colName :String): Unit = {
     if(inputDF.count() == 0) {
       throw DataframeIsEmptyException("The dataframe is empty")

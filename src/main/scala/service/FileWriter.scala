@@ -11,7 +11,6 @@ object FileWriter {
     if (inputDF.count() == 0) {
       throw DataframeIsEmptyException("The dataframe is empty")
     }
-
     try {
       inputDF.repartition(1).write.format(fileFormat).option("header", "true").mode("overwrite").save(filePath)
     } catch {

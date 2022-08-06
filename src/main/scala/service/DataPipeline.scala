@@ -55,7 +55,6 @@ object DataPipeline {
     /** **************ITEM DATASET*************** */
     //reading item dataset
     val itemDF = fileReader(itemDataInputPath, ApplicationConstants.FILE_FORMAT)
-
     //handling null values for item dataset
     val rowEliminatedItemDF = removeRows(itemDF, ApplicationConstants.ITEM_NOT_NULL_KEYS)
 
