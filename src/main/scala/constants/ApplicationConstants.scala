@@ -2,9 +2,9 @@ package constants
 
 object ApplicationConstants {
   //input path
-  val CLICK_STREAM_PATH = "spark.app.clickStreamInputPath"
-  val ITEM_DATA_PATH = "spark.app.itemDataPath"
-
+  val CLICK_STREAM_INPUT_PATH: String = "spark.app.clickStreamInputPath"
+  val ITEM_DATA_INPUT_PATH: String = "spark.app.itemDataInputPath"
+  
   val CLICK_STREAM_PRIMARY_KEYS : Seq[String] = Seq("visitor_id", "item_id")
   val ITEM_PRIMARY_KEYS : Seq[String] = Seq("item_id")
 
@@ -19,8 +19,8 @@ object ApplicationConstants {
   val ITEM_DATA_STRING = Seq("product_type","department_name","vendor_name")
 
   //output path
-  val CLICK_STREAM_OUTPUT_PATH = "spark.app.clickStreamInputPath"
-  val ITEM_OUTPUT_PATH = "spark.app.itemDataOutputPath"
+  val CLICK_STREAM_OUTPUT_PATH: String = "spark.app.clickStreamOutputPath"
+  val ITEM_OUTPUT_PATH: String = "spark.app.itemDataOutputPath"
 
   val INPUT_TIME_STAMP_FORMAT = "MM/dd/yyyy HH:mm"
   val TIME_STAMP_COL = "event_timestamp"

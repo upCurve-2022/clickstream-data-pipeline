@@ -4,13 +4,13 @@ import utils.ApplicationUtils.{check}
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{ col, desc, lower, row_number, to_timestamp}
-
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 object FileCleanser {
 
   /*********************REMOVING NULLS FROM THE DATASET****************************/
+
   //Handling null values - removing rows when primary key is null
   def removeRows(df: DataFrame, primaryColumns:Seq[String]): DataFrame = {
     val rowEliminatedDf = df.na.drop("any",primaryColumns)
@@ -28,6 +28,7 @@ object FileCleanser {
     val currentTime = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm").format(LocalDateTime.now)
     val timestampFilledDf:DataFrame = df.na.fill(currentTime:String,columnsSeq)
     timestampFilledDf
+
   }
 
   /**************MODIFYING COLUMN DATA TYPES*********************/
@@ -57,7 +58,7 @@ object FileCleanser {
   /******************REMOVING DUPLICATES FROM THE DATASET******************/
   //function to remove duplicates
   def removeDuplicates(inputDF: DataFrame, primaryKeyCols : Seq[String], orderByCol: String) : DataFrame = {
-    primaryKeyCols.toList.foreach{ (element: String) => check(inputDF, element) }
+    primaryKeyCols.foreach{ (element: String) => check(inputDF, element) }
     val outputDF = inputDF.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col):_*).orderBy(desc(orderByCol))))
       .filter(col("rn") === 1).drop("rn")
     outputDF

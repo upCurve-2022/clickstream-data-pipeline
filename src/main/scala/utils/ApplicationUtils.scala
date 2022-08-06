@@ -13,9 +13,21 @@ object ApplicationUtils {
   def configuration():Config = {
     val parsedConfig = ConfigFactory.parseFile(new File("config/local.conf"))
     val appConf: Config = ConfigFactory.load(parsedConfig)
-//    val appName = appConf.getString("spark.app.name")
-//    val appMaster = appConf.getString("spark.app.master")
+    //    val appName = appConf.getString("spark.app.name")
+    //    val appMaster = appConf.getString("spark.app.master")
     appConf
+  }
+
+  //Creating the spark session
+  def createSparkSession(): SparkSession = {
+    implicit val spark: SparkSession = SparkSession.getActiveSession.getOrElse(
+      SparkSession.builder
+        .appName(configuration().getString("spark.app.name"))
+        .master(configuration().getString("spark.app.master"))
+        .enableHiveSupport()
+        .getOrCreate()
+    )
+    spark
   }
 
   //Creating the spark session
@@ -31,7 +43,7 @@ object ApplicationUtils {
     }
 
   //checking for exceptions
-  def check(inputDF : DataFrame, colName : String){
+  def check(inputDF : DataFrame, colName :String): Unit = {
     if(inputDF.count() == 0) {
       throw DataframeIsEmptyException("The dataframe is empty")
     } else if (!inputDF.columns.contains(colName))
