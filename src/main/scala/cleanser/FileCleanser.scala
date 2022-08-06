@@ -59,7 +59,7 @@ object FileCleanser {
   def removeDuplicates(df: DataFrame, primaryKeyCols : Seq[String], orderByCol: Option[String]) : DataFrame = {
     orderByCol match {
       case Some(column) =>
-        //Remove duplicates from the clickstream dataset
+        //Remove duplicates from the click stream dataset
         val dfRemoveDuplicates = df.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col): _*).orderBy(desc(column))))
           .filter(col("rn") === 1).drop("rn")
         dfRemoveDuplicates
