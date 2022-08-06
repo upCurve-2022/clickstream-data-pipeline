@@ -57,7 +57,7 @@ object FileCleanser {
   /******************REMOVING DUPLICATES FROM THE DATASET******************/
   //function to remove duplicates
   def removeDuplicates(inputDF: DataFrame, primaryKeyCols : Seq[String], orderByCol: String) : DataFrame = {
-    primaryKeyCols.toList.foreach{ (element: String) => check(inputDF, element) }
+    primaryKeyCols.foreach{ (element: String) => check(inputDF, element) }
     val outputDF = inputDF.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col):_*).orderBy(desc(orderByCol))))
       .filter(col("rn") === 1).drop("rn")
     outputDF

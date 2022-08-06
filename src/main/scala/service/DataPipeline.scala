@@ -28,12 +28,12 @@ object DataPipeline {
 
     //Removing rows when primary columns are null
     val rowEliminatedDF = removeRows(clickStreamDF, ApplicationConstants.CLICK_STREAM_NOT_NULL_KEYS)
-    
+
     //Replacing null in other rows
     val timestampFilledDF = fillCurrentTime(rowEliminatedDF, ApplicationConstants.CLICK_STREAM_TIMESTAMP)
     val falseFilledDF = fillCustomValues(timestampFilledDF, ApplicationConstants.CLICK_STREAM_BOOLEAN, "FALSE")
     val unknownFilledDF = fillCustomValues(falseFilledDF, ApplicationConstants.CLICK_STREAM_STRING, "UNKNOWN")
-    
+
     //converting string to timestamp format
     val convertedDF = stringToTimestamp(unknownFilledDF, ApplicationConstants.TIME_STAMP_COL, ApplicationConstants.INPUT_TIME_STAMP_FORMAT)
 
@@ -42,7 +42,7 @@ object DataPipeline {
 
     //modifying the data types of the columns of the click stream dataset
     val modifiedClickStreamDF = colDatatypeModifier(modifiedDF, ApplicationConstants.CLICK_STREAM_DATATYPE)
-    
+
     //remove duplicates from the click stream dataset
     val clickStreamDFWithoutDuplicates = removeDuplicates(modifiedClickStreamDF, ApplicationConstants.CLICK_STREAM_PRIMARY_KEYS, ApplicationConstants.TIME_STAMP_COL)
 
@@ -55,10 +55,9 @@ object DataPipeline {
     /** **************ITEM DATASET*************** */
     //reading item dataset
     val itemDF = fileReader(itemDataInputPath, ApplicationConstants.FILE_FORMAT)
-    
     //handling null values for item dataset
     val rowEliminatedItemDF = removeRows(itemDF, ApplicationConstants.ITEM_NOT_NULL_KEYS)
-    
+
     //Replacing null in other rows
     val minusFilledItemDF = fillCustomValues(rowEliminatedItemDF, ApplicationConstants.ITEM_DATA_NUMERIC, "-1")
     val unknownFilledItemDF = fillCustomValues(minusFilledItemDF, ApplicationConstants.ITEM_DATA_STRING, "UNKNOWN")
