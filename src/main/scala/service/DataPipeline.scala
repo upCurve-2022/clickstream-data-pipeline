@@ -1,25 +1,31 @@
 package service
 
 import cleanser.FileCleanser._
+import com.typesafe.config.Config
 import constants.ApplicationConstants
-import constants.ApplicationConstants.{CLICK_STREAM_OUTPUT_PATH, CLICK_STREAM_PATH, ITEM_DATA_PATH, ITEM_OUTPUT_PATH}
+import constants.ApplicationConstants.{CLICK_STREAM_INPUT_PATH, CLICK_STREAM_OUTPUT_PATH, FILE_FORMAT, ITEM_DATA_INPUT_PATH, ITEM_OUTPUT_PATH}
 import org.apache.log4j.Logger
+import org.apache.spark.sql.SparkSession
 import service.FileReader.fileReader
 import service.FileWriter.writeToOutputPath
-import utils.ApplicationUtils.{appConf, sparkSession}
+import utils.ApplicationUtils.{configuration, createSparkSession}
 
 object DataPipeline {
+  implicit val spark:SparkSession = createSparkSession()
+  val appConf: Config = configuration()
   val log: Logger = Logger.getLogger(getClass)
-  val clickStreamInputPath =appConf.getString(CLICK_STREAM_PATH)
-  val itemDataInputPath = appConf.getString(ITEM_DATA_PATH)
-  val clickStreamOutputPath=appConf.getString(CLICK_STREAM_OUTPUT_PATH)
-  val itemDataOutputPath=appConf.getString(ITEM_OUTPUT_PATH)
-  /** **********CLICK STREAM DATASET************** */
+  val clickStreamInputPath: String =appConf.getString(CLICK_STREAM_INPUT_PATH)
+  val itemDataInputPath: String = appConf.getString(ITEM_DATA_INPUT_PATH)
+  val clickStreamOutputPath: String=appConf.getString(CLICK_STREAM_OUTPUT_PATH)
+  val itemDataOutputPath: String=appConf.getString(ITEM_OUTPUT_PATH)
+
 
   def execute(): Unit = {
     //reading click stream dataset
-    val clickStreamDF = fileReader(clickStreamInputPath, ApplicationConstants.FILE_FORMAT)
-    
+
+    /*****************CLICK STREAM DATASET**********************/
+    val clickStreamDF = fileReader(clickStreamInputPath, FILE_FORMAT)
+
     //Removing rows when primary columns are null
     val rowEliminatedDF = removeRows(clickStreamDF, ApplicationConstants.CLICK_STREAM_NOT_NULL_KEYS)
     
@@ -67,6 +73,7 @@ object DataPipeline {
     log.warn("Total items in the item dataset " + itemDFWithoutDuplicates.count())
 
     //writing the resultant data of item dataset to a file
+    writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
 
   }
 
