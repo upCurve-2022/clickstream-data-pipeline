@@ -4,13 +4,13 @@ import utils.ApplicationUtils.{check}
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{ col, desc, lower, row_number, to_timestamp}
+
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 object FileCleanser {
 
   /*********************REMOVING NULLS FROM THE DATASET****************************/
-
   //Handling null values - removing rows when primary key is null
   def removeRows(df: DataFrame, primaryColumns:Seq[String]): DataFrame = {
     val rowEliminatedDf = df.na.drop("any",primaryColumns)
@@ -28,7 +28,6 @@ object FileCleanser {
     val currentTime = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm").format(LocalDateTime.now)
     val timestampFilledDf:DataFrame = df.na.fill(currentTime:String,columnsSeq)
     timestampFilledDf
-
   }
 
   /**************MODIFYING COLUMN DATA TYPES*********************/
