@@ -1,26 +1,26 @@
 package constants
 
 object ApplicationConstants {
-  //
-  val CLICK_STREAM_PATH = "data/clickstream_log.csv"
-  val ITEM_DATA_PATH = "data/item_data.csv"
+  //input path
+  val CLICK_STREAM_INPUT_PATH: String = "spark.app.clickStreamInputPath"
+  val ITEM_DATA_INPUT_PATH: String = "spark.app.itemDataInputPath"
 
   val CLICK_STREAM_PRIMARY_KEYS : Seq[String] = Seq("visitor_id", "item_id")
   val ITEM_PRIMARY_KEYS : Seq[String] = Seq("item_id")
 
   //constants for null values handling
   val CLICK_STREAM_NOT_NULL_KEYS = Seq("id", "session_id","item_id")
-  val ITEM_NOT_NULL_KEYS = Seq("item_id","vendor_id")
-
   val CLICK_STREAM_BOOLEAN = Seq("is_add_to_cart","is_order_placed")
-  val ITEM_DATA_BOOLEAN = Seq()
-  
   val CLICK_STREAM_TIMESTAMP = Seq("event_timestamp")
-  val ITEM_DATA_TIMESTAMP = Seq()
+  val CLICK_STREAM_STRING = Seq("device_type", "visitor_id", "redirection_source")
 
-  //
-  val CLICK_STREAM_OUTPUT_PATH = "data/output_data/clickstream_data.csv"
-  val ITEM_OUTPUT_PATH = "data/output_data/item_data.csv"
+  val ITEM_NOT_NULL_KEYS = Seq("item_id","vendor_id")
+  val ITEM_DATA_NUMERIC = Seq("item_price")
+  val ITEM_DATA_STRING = Seq("product_type","department_name","vendor_name")
+
+  //output path
+  val CLICK_STREAM_OUTPUT_PATH: String = "spark.app.clickStreamOutputPath"
+  val ITEM_OUTPUT_PATH: String = "spark.app.itemDataOutputPath"
 
   val INPUT_TIME_STAMP_FORMAT = "MM/dd/yyyy HH:mm"
   val TIME_STAMP_COL = "event_timestamp"

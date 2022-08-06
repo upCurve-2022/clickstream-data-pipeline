@@ -1,25 +1,27 @@
 package service
 
-import exceptions.Exceptions.DataframeIsEmptyException
-import org.apache.spark.sql.{AnalysisException, DataFrame}
-import utils.ApplicationUtils.createSparkSession
 
-object FileReader {
-  def fileReader(filePath: String, fileType: String): DataFrame = {
-    try {
-      val outputDF = createSparkSession().read.option("header", "true").format(fileType).load(filePath)
-      if(outputDF.count() == 0){
-        throw DataframeIsEmptyException("The dataframe created does not contains any data")
-      }
-      outputDF
-    } catch {
-      //case ex: AnalysisException =>
-        //throw new AnalysisException(s"The file path $filePath is not found")
-      case ex1 : DataframeIsEmptyException =>
-        throw DataframeIsEmptyException(ex1.message)
-      case _: Exception =>
-        throw new Exception("An unknown exception occurred")
+import exceptions.Exceptions.{DataframeIsEmptyException, EmptyFilePathException, FilePathNotFoundException, FileReaderException}
+import org.apache.spark.internal.Logging
+import org.apache.spark.sql.{AnalysisException, DataFrame, SparkSession}
+
+object FileReader extends Logging {
+
+  def fileReader(filePath: String, fileFormat: String)(implicit sparkSession: SparkSession): DataFrame = {
+    if(filePath == "" ){
+      throw EmptyFilePathException("The file path is empty. Please provide a valid file path.")
     }
-  }
+    val outputDF = try {
+      sparkSession.read.option("header", "true").format(fileFormat).load(filePath)
 
+    } catch {
+      case ex : AnalysisException => throw FilePathNotFoundException("The file path is not found.")
+      case ex: Exception => throw FileReaderException("Unable to read file from given path.")
+
+    }
+    if (outputDF.count() == 0) {
+      throw DataframeIsEmptyException("The dataFrame is empty")
+    }
+    outputDF
+  }
 }

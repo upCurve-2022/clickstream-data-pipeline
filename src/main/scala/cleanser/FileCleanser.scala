@@ -1,57 +1,47 @@
 package cleanser
 
-import constants.ApplicationConstants
-import exceptions.Exceptions.{ColumnNotFoundException, DataframeIsEmptyException}
-import utils.ApplicationUtils.checkExceptions
+import utils.ApplicationUtils.{check}
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions.{coalesce, col, current_timestamp, desc, exp, lower, row_number, to_timestamp}
-import org.apache.spark.sql.types.BooleanType
-
-import scala.collection.mutable.ListBuffer
-
+import org.apache.spark.sql.functions.{ col, desc, lower, row_number, to_timestamp}
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 object FileCleanser {
-  
+
   /*********************REMOVING NULLS FROM THE DATASET****************************/
-  //1.removing rows when primary key is null
-  def removeRows(inputDF: DataFrame, primaryColumns:Seq[String]): DataFrame = {
-    primaryColumns.foreach{ (element: String) => checkExceptions(inputDF, element) }
-    val rowEliminatedDf = inputDF.na.drop("any",primaryColumns)
+
+  //Handling null values - removing rows when primary key is null
+  def removeRows(df: DataFrame, primaryColumns:Seq[String]): DataFrame = {
+    val rowEliminatedDf = df.na.drop("any",primaryColumns)
     rowEliminatedDf
   }
 
-  //2.filling null values
-  def fillValues(inputDF:DataFrame, primaryColumns:Seq[String], booleanColumns:Seq[String], timestampColumns:Seq[String]):DataFrame = {
-    primaryColumns.foreach{ (element: String) => checkExceptions(inputDF, element) }
-    booleanColumns.foreach{ (element: String) => checkExceptions(inputDF, element) }
-    timestampColumns.foreach{ (element: String) => checkExceptions(inputDF, element) }
-    //filling false
-    val booleanFilledDf:DataFrame = inputDF.na.fill("FALSE":String,booleanColumns)
+  //Handling null values - filling null value with a custom value
+  def fillCustomValues(df:DataFrame, columnsSeq:Seq[String], customVal:String):DataFrame = {
+    val filledDf:DataFrame = df.na.fill(customVal,columnsSeq)
+    filledDf
+  }
 
-    //filling current timestamp
+  //Handling null values -filling null value with the current timestamp
+  def fillCurrentTime(df:DataFrame, columnsSeq:Seq[String]):DataFrame = {
     val currentTime = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm").format(LocalDateTime.now)
-    val timestampFilledDf:DataFrame = booleanFilledDf.na.fill(currentTime:String,timestampColumns)
+    val timestampFilledDf:DataFrame = df.na.fill(currentTime:String,columnsSeq)
+    timestampFilledDf
 
-    //filling unknown
-    val remainingColumns = (inputDF.columns.toSet).diff(((primaryColumns.toSet).union(booleanColumns.toSet)).union(timestampColumns.toSet)).toSeq
-    val unknownFilledDf:DataFrame = timestampFilledDf.na.fill("unknown":String,remainingColumns)
-    unknownFilledDf
   }
 
   /**************MODIFYING COLUMN DATA TYPES*********************/
   //converts string to timestamp format
   def stringToTimestamp(inputDF : DataFrame, colName: String, inputFormat : String) : DataFrame = {
-    checkExceptions(inputDF, colName)
+    check(inputDF, colName)
     val outputDF = inputDF.withColumn(colName, to_timestamp(col(colName),inputFormat))
     outputDF
   }
 
   //converts the string to lowercase
   def toLowercase(inputDF : DataFrame, colName: String) : DataFrame = {
-    checkExceptions(inputDF, colName)
+    check(inputDF, colName)
     val outputDF = inputDF.withColumn(colName, lower(col(colName)))
     outputDF
   }
@@ -59,7 +49,8 @@ object FileCleanser {
   //modifies the datatype of the columns in a dataframe
   def colDatatypeModifier(inputDF : DataFrame, colDatatype : List[(String, String)]) : DataFrame = {
     val colList = colDatatype.map(x => x._1)
-    colList.foreach { (element: String) => checkExceptions(inputDF, element) }
+    colList.foreach { (element: String) => check(inputDF, element) }
+    //val dataTypeList = colDatatype.map(x => x._2)
     val outputDF = inputDF.select(colDatatype.map{case(c,t) => inputDF.col(c).cast(t)}:_*)
     outputDF
   }
@@ -67,7 +58,7 @@ object FileCleanser {
   /******************REMOVING DUPLICATES FROM THE DATASET******************/
   //function to remove duplicates
   def removeDuplicates(inputDF: DataFrame, primaryKeyCols : Seq[String], orderByCol: String) : DataFrame = {
-    primaryKeyCols.toList.foreach{ (element: String) => checkExceptions(inputDF, element) }
+    primaryKeyCols.foreach{ (element: String) => check(inputDF, element) }
     val outputDF = inputDF.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col):_*).orderBy(desc(orderByCol))))
       .filter(col("rn") === 1).drop("rn")
     outputDF
