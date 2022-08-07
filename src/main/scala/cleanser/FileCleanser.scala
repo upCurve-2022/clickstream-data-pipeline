@@ -1,50 +1,22 @@
 package cleanser
 
 import org.apache.spark.sql._
-import constants.Constants
-import org.apache.spark.sql.functions.{coalesce, col, current_timestamp, to_timestamp}
-import org.apache.spark.sql.types.BooleanType
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
-import scala.collection.mutable.ListBuffer
 object FileCleanser {
-
-  def nullRemoval(df1: DataFrame, primaries:Seq[String]): DataFrame = {
-
-    //removing null rows when columns matches primaries
-    val noNullDF2 = df1.na.drop("any",primaries)
-    noNullDF2.show(5)
-    noNullDF2
+  //removing rows when primary key is null
+  def removeRows(df: DataFrame, primaryColumns:Seq[String]): DataFrame = {
+    val rowEliminatedDf = df.na.drop("any",primaryColumns)
+    rowEliminatedDf
   }
-
-  def isBooleanPresent(df:DataFrame):List[String]={
-    var list = new ListBuffer[String]()
-    df.schema.fields.foreach(f=>if(f.dataType.equals(BooleanType)) {
-      list=list:+f.name}
-    )
-    val finals=list.toList
-    finals
+  def fillCustomValues(df:DataFrame,cols:Seq[String],fillingValue:String):DataFrame={
+    val df1=df.na.fill(fillingValue,cols)
+    df1
   }
-  def handleTimeStamp(df:DataFrame): DataFrame ={
-    val newDf1 = df.withColumn("event_timestamp", coalesce(col("event_timestamp"), current_timestamp()))
-    val new_df = newDf1.withColumn("event_timestamp", to_timestamp(col("event_timestamp"),"MM/dd/yyyy HH:mm"))
-    new_df
+  def fillCurrentTime(df:DataFrame,cols:Seq[String]): DataFrame={
+    val currentTime = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm").format(LocalDateTime.now)
+    val fillTimeDF=df.na.fill(currentTime,cols);
+    fillTimeDF
   }
-  def handleBoolean(df:DataFrame,list:List[String]): DataFrame={
-    fillBoolean(df,list.isEmpty,list)
-  }
-  def fillBoolean(df:DataFrame,b: Boolean,list: List[String]) = b match { case false => df.na.fill(false,list); case true => df }
-
-
-  def fillUnknown(df:DataFrame,primaries:Seq[String]): DataFrame ={
-
-    val col = df.schema.fieldNames.toSeq
-    val colSet=col.toSet
-    val primarySet=primaries.toSet
-    val flagColSet=isBooleanPresent(df).toSet
-
-    val nonPrimaries= (colSet.diff(primarySet)).diff(flagColSet).toSeq
-    val filledUnknownDataFrame:DataFrame = df.na.fill("unknown",nonPrimaries)
-    filledUnknownDataFrame
-  }
-
 }
