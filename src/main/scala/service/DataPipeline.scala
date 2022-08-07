@@ -30,7 +30,8 @@ object DataPipeline {
     val rowEliminatedDF = removeRows(clickStreamDF, ApplicationConstants.CLICK_STREAM_NOT_NULL_KEYS)
 
     //Replacing null in other rows
-    val timestampFilledDF = fillCurrentTime(rowEliminatedDF, ApplicationConstants.CLICK_STREAM_TIMESTAMP)
+    val numericFilledDF = fillCustomValues(rowEliminatedDF, ApplicationConstants.CLICK_STREAM_NUMERIC, "-1")
+    val timestampFilledDF = fillCurrentTime(numericFilledDF, ApplicationConstants.CLICK_STREAM_TIMESTAMP)
     val falseFilledDF = fillCustomValues(timestampFilledDF, ApplicationConstants.CLICK_STREAM_BOOLEAN, "FALSE")
     val unknownFilledDF = fillCustomValues(falseFilledDF, ApplicationConstants.CLICK_STREAM_STRING, "UNKNOWN")
 
