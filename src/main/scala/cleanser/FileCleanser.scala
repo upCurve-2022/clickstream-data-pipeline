@@ -1,6 +1,6 @@
 package cleanser
 
-import utils.ApplicationUtils.{check}
+import utils.ApplicationUtils.check
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{ col, desc, lower, row_number, to_timestamp}
@@ -55,13 +55,18 @@ object FileCleanser {
   }
 
   /******************REMOVING DUPLICATES FROM THE DATASET******************/
-  //function to remove duplicates
-  def removeDuplicates(inputDF: DataFrame, primaryKeyCols : Seq[String], orderByCol: String) : DataFrame = {
-    primaryKeyCols.foreach{ (element: String) => check(inputDF, element) }
-    val outputDF = inputDF.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col):_*).orderBy(desc(orderByCol))))
-      .filter(col("rn") === 1).drop("rn")
-    outputDF
-
+  //Handling Duplicates
+  def removeDuplicates(df: DataFrame, primaryKeyCols : Seq[String], orderByCol: Option[String]) : DataFrame = {
+    orderByCol match {
+      case Some(column) =>
+        //Remove duplicates from the click stream dataset
+        val dfRemoveDuplicates = df.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col): _*).orderBy(desc(column))))
+          .filter(col("rn") === 1).drop("rn")
+        dfRemoveDuplicates
+      //Remove duplicates from the item dataset
+      case None => val dfRemoveDuplicates = df.dropDuplicates(primaryKeyCols)
+        dfRemoveDuplicates
+    }
   }
 
 }
