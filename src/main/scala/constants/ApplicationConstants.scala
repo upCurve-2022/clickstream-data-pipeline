@@ -56,5 +56,6 @@ object ApplicationConstants {
 
 
   val DEFAULT_STRING_NULL="unknown"
+  val DEFAULT_NUMERIC_NULL=(-1)
 
 }

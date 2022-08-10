@@ -22,14 +22,11 @@ object FileCleanser {
     val filledDf:DataFrame = df.na.fill(customVal,columnsSeq)
     filledDf
   }
-  def fillCustomFloatValues(df:DataFrame, columnsSeq:Seq[String], customVal:Float):DataFrame = {
+  def fillCustomNumericValues(df:DataFrame, columnsSeq:Seq[String], customVal:Float):DataFrame = {
     val filledDf:DataFrame = df.na.fill(customVal,columnsSeq)
     filledDf
   }
-  def fillCustomIntValues(df:DataFrame, columnsSeq:Seq[String], customVal:Int):DataFrame = {
-    val filledDf:DataFrame = df.na.fill(customVal,columnsSeq)
-    filledDf
-  }
+
 
   //Handling null values -filling null value with the current timestamp
   def fillCurrentTime(df:DataFrame, columnsSeq:Seq[String]):DataFrame = {

@@ -8,22 +8,23 @@ import org.apache.log4j.Logger
 import org.apache.spark.sql.SparkSession
 import service.FileReader.fileReader
 import service.FileWriter.writeToOutputPath
+import transform.JoinDatasets.joinDataFrame
 import utils.ApplicationUtils.{configuration, createSparkSession}
 
 object DataPipeline {
-  implicit val spark:SparkSession = createSparkSession()
+  implicit val spark: SparkSession = createSparkSession()
   val appConf: Config = configuration()
   val log: Logger = Logger.getLogger(getClass)
-  val clickStreamInputPath: String =appConf.getString(CLICK_STREAM_INPUT_PATH)
+  val clickStreamInputPath: String = appConf.getString(CLICK_STREAM_INPUT_PATH)
   val itemDataInputPath: String = appConf.getString(ITEM_DATA_INPUT_PATH)
-  val clickStreamOutputPath: String=appConf.getString(CLICK_STREAM_OUTPUT_PATH)
-  val itemDataOutputPath: String=appConf.getString(ITEM_OUTPUT_PATH)
+  val clickStreamOutputPath: String = appConf.getString(CLICK_STREAM_OUTPUT_PATH)
+  val itemDataOutputPath: String = appConf.getString(ITEM_OUTPUT_PATH)
 
 
   def execute(): Unit = {
     //reading click stream dataset
 
-    /*****************CLICK STREAM DATASET**********************/
+    /** ***************CLICK STREAM DATASET********************* */
     val clickStreamDF = fileReader(clickStreamInputPath, FILE_FORMAT)
 
     //Removing rows when primary columns are null
@@ -71,28 +72,21 @@ object DataPipeline {
     //logging information about item dataset
     log.warn("Total items in the item dataset " + itemDFWithoutDuplicates.count())
 
-//    joining two datasets
-    val joinedDataframe=transform.JoinDatasets.joinDataFrame(clickStreamDFWithoutDuplicates,itemDFWithoutDuplicates,join_key,join_type)
-  joinedDataframe.show()
-//    val intNullHandleJoinedDF=fillCustomValues(joinedDataframe,ITEM_DATA_INT,"-1")
-//    val floatNullHandleJoinedDF=fillCustomValues(intNullHandleJoinedDF,ApplicationConstants.ITEM_DATA_FLOAT,"-1")
-//    val stringNullHandledJoinDF=fillCustomValues(floatNullHandleJoinedDF,ITEM_DATA_STRING,DEFAULT_STRING_NULL)
-//
-//    val transformJoinedDF=transform.JoinDatasets.transformDataFrame(stringNullHandledJoinDF)
-//
-////    stringNullHandledJoinDF.show()
-//  transformJoinedDF.filter(transformJoinedDF.col("department_name")==="unknown"  && transformJoinedDF.col("product_type")==="unknown"&& transformJoinedDF.col("vendor_id")===("-1")&&
-//    transformJoinedDF.col("item_price")===("-1") ).show()
-//// transformJoinedDF.col("item_price")===("-1")
-////    && transformJoinedDF.col("vendor_id")===("-1")&&
-//
-//
-//
-//
-//
-//
-//    //writing the resultant data of item dataset to a file
-////   writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
+    //  joining two datasets
+    val joinedDataframe = joinDataFrame(clickStreamDFWithoutDuplicates, itemDFWithoutDuplicates, join_key, join_type)
+    //    filling null values
+    val intNullHandleJoinedDF = fillCustomNumericValues(joinedDataframe, ITEM_DATA_INT, DEFAULT_NUMERIC_NULL)
+    val floatNullHandleJoinedDF = fillCustomNumericValues(intNullHandleJoinedDF, ApplicationConstants.ITEM_DATA_FLOAT, DEFAULT_NUMERIC_NULL)
+    val stringNullHandledJoinDF = fillCustomValues(floatNullHandleJoinedDF, ITEM_DATA_STRING, DEFAULT_STRING_NULL)
+    // transform
+    val transformJoinedDF = transform.JoinDatasets.transformDataFrame(stringNullHandledJoinDF)
+    //testing
+    transformJoinedDF.filter(transformJoinedDF.col("department_name") === "unknown" && transformJoinedDF.col("product_type") === "unknown" && transformJoinedDF.col("vendor_id") === (-1) &&
+      transformJoinedDF.col("item_price") === (-1)).show()
+
+
+    //    //writing the resultant data of item dataset to a file
+    ////   writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
 
   }
 
