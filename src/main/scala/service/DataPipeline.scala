@@ -85,8 +85,7 @@ object DataPipeline {
       transformJoinedDF.col("item_price") === (-1)).show()
 
 
-    //    //writing the resultant data of item dataset to a file
-    ////   writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
+  
 
   }
 
