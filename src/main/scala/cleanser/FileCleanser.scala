@@ -1,10 +1,9 @@
 package cleanser
 
-import utils.ApplicationUtils.{check}
+import utils.ApplicationUtils.check
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions.{ col, desc, lower, row_number, to_timestamp}
-
+import org.apache.spark.sql.functions._
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -18,16 +17,18 @@ object FileCleanser {
   }
 
   //Handling null values - filling null value with a custom value
-  def fillCustomValues(df:DataFrame, columnsSeq:Seq[String], customVal:String):DataFrame = {
-    val filledDf:DataFrame = df.na.fill(customVal,columnsSeq)
+  def fillCustomValues(df:DataFrame,nullMap:Map[String,Any]):DataFrame = {
+
+    val filledDf:DataFrame = df.na.fill(nullMap)
     filledDf
   }
 
+
   //Handling null values -filling null value with the current timestamp
-  def fillCurrentTime(df:DataFrame, columnsSeq:Seq[String]):DataFrame = {
-    val currentTime = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm").format(LocalDateTime.now)
-    val timestampFilledDf:DataFrame = df.na.fill(currentTime:String,columnsSeq)
-    timestampFilledDf
+  def fillCurrentTime(df:DataFrame,cols:Seq[String]): DataFrame={
+    val currentTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now)
+    val fillTimeDF=df.withColumn("event_timestamp",coalesce(col("event_timestamp"),lit(currentTime)))
+    fillTimeDF
   }
 
   /**************MODIFYING COLUMN DATA TYPES*********************/
@@ -50,18 +51,24 @@ object FileCleanser {
     val colList = colDatatype.map(x => x._1)
     colList.foreach { (element: String) => check(inputDF, element) }
     //val dataTypeList = colDatatype.map(x => x._2)
-    val outputDF = inputDF.select(colDatatype.map{case(c,t) => inputDF.col(c).cast(t)}:_*)
+//    val outputDF = inputDF.select(colDatatype.map{case(c,t) => inputDF.col(c).cast(t)}:_*)
+    val outputDF = inputDF.select(colDatatype.map{x => inputDF.col(x._1).cast(x._2)}:_*)
     outputDF
   }
 
   /******************REMOVING DUPLICATES FROM THE DATASET******************/
-  //function to remove duplicates
-  def removeDuplicates(inputDF: DataFrame, primaryKeyCols : Seq[String], orderByCol: String) : DataFrame = {
-    primaryKeyCols.foreach{ (element: String) => check(inputDF, element) }
-    val outputDF = inputDF.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col):_*).orderBy(desc(orderByCol))))
-      .filter(col("rn") === 1).drop("rn")
-    outputDF
-
+  //Handling Duplicates
+  def removeDuplicates(df: DataFrame, primaryKeyCols : Seq[String], orderByCol: Option[String]=None) : DataFrame = {
+    orderByCol match {
+      case Some(column) =>
+        //Remove duplicates from the click stream dataset
+        val dfRemoveDuplicates = df.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col): _*).orderBy(desc(column))))
+          .filter(col("rn") === 1).drop("rn")
+        dfRemoveDuplicates
+      //Remove duplicates from the item dataset
+      case None => val dfRemoveDuplicates = df.dropDuplicates(primaryKeyCols)
+        dfRemoveDuplicates
+    }
   }
 
 }
