@@ -7,7 +7,6 @@ import constants.ApplicationConstants._
 import org.apache.log4j.Logger
 import org.apache.spark.sql.SparkSession
 import service.FileReader.fileReader
-import service.FileWriter.writeToOutputPath
 import transform.JoinDatasets.joinDataFrame
 import utils.ApplicationUtils.{configuration, createSparkSession}
 
@@ -76,9 +75,9 @@ object DataPipeline {
 
     //  joining two datasets
     val joinedDataframe = joinDataFrame(clickStreamDFWithoutDuplicates, itemDFWithoutDuplicates, join_key, join_type)
-    joinedDataframe.show(joinedDataframe.count().toInt)
-    joinedDataframe.printSchema()
-    joinedDataframe.show()
+//    joinedDataframe.show(joinedDataframe.count().toInt)
+//    joinedDataframe.printSchema()
+//    joinedDataframe.show()
 val nullHandledJoinTable=fillCustomValues(joinedDataframe,itemDataNullFillValues)
     // transform
     val transformJoinedDF = transform.JoinDatasets.transformDataFrame(nullHandledJoinTable)
@@ -89,21 +88,11 @@ val nullHandledJoinTable=fillCustomValues(joinedDataframe,itemDataNullFillValues
     val df = transformJoinedDF.filter(transformJoinedDF.col("department_name") === "unknown" && transformJoinedDF.col("product_type") === "unknown" && transformJoinedDF.col("vendor_id") === (-1) &&
       transformJoinedDF.col("item_price") === (-1))
     transformJoinedDF.printSchema()
-    //writing the resultant data of item dataset to a file
-    writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
-
-
-    //final df to be inserted - write into table
-    //demo table
-    //fileWriter("table2", itemDFWithoutDuplicates)
-  }
-
-
 
 //    timestampFilledDF.show(10)
 
 
 
-
+  }
 
 }

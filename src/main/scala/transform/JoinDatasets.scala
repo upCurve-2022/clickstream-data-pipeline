@@ -13,9 +13,9 @@ object JoinDatasets {
     joinKey.foreach { (element: String) => check(df2, element) }
 
     val joinedDataFrame: DataFrame = df1.join(df2, joinKey, joinType)
-    joinedDataFrame
-    //    val joinedTableNullFill = fillCustomValues(joinedDataFrame,itemDataNullFillValues)
-    //    joinedTableNullFill
+joinedDataFrame
+//    val joinedTableNullFill = fillCustomValues(joinedDataFrame,itemDataNullFillValues)
+//    joinedTableNullFill
   }
 
 
