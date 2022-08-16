@@ -23,12 +23,8 @@ object DataPipeline {
 
 
   def execute(): Unit = {
-<<<<<<< HEAD
 
     /** ***************CLICK STREAM DATASET********************* */
-=======
-    /*****************CLICK STREAM DATASET**********************/
->>>>>>> cc32477 (performed dq checks)
     //reading click stream dataset
     val clickStreamDF = fileReader(clickStreamInputPath, FILE_FORMAT)
 
@@ -53,13 +49,13 @@ object DataPipeline {
     //remove duplicates from the click stream dataset
     val clickStreamDFWithoutDuplicates = removeDuplicates(modifiedDF, ApplicationConstants.CLICK_STREAM_PRIMARY_KEYS, Some(ApplicationConstants.TIME_STAMP_COL))
 
-    //performing data quality checks on clickstream dataset
+    //logging information about click stream dataset
+
     val clickStreamMandatoryCol = CLICK_STREAM_DATATYPE.map(x => x._1)
     val itemMandatoryCol = ITEM_DATATYPE.map(x => x._1)
     nullCheck(clickStreamDFWithoutDuplicates, clickStreamMandatoryCol)
     schemaValidationCheck(clickStreamDFWithoutDuplicates)
 
-    //logging information about click stream dataset
     log.warn("Total items in the click stream dataset " + clickStreamDFWithoutDuplicates.count())
 
     //writing the resultant data to a file
@@ -85,7 +81,6 @@ object DataPipeline {
     //logging information about item dataset
     log.warn("Total items in the item dataset " + itemDFWithoutDuplicates.count())
 
-<<<<<<< HEAD
     //  joining two datasets
     val joinedDataframe = joinDataFrame(clickStreamDFWithoutDuplicates, itemDFWithoutDuplicates, join_key, join_type)
     joinedDataframe.show(joinedDataframe.count().toInt)
@@ -101,21 +96,15 @@ val nullHandledJoinTable=fillCustomValues(joinedDataframe,itemDataNullFillValues
       transformJoinedDF.col("item_price") === (-1))
     transformJoinedDF.printSchema()
 
-=======
-    //performing data quality checks on item dataset
->>>>>>> cc32477 (performed dq checks)
     nullCheck(itemDFWithoutDuplicates, itemMandatoryCol)
     schemaValidationCheck(itemDFWithoutDuplicates)
 
     //writing the resultant data of item dataset to a file
     writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
 
-<<<<<<< HEAD
     //final df to be inserted - write into table
     //demo table
     //fileWriter("table2", itemDFWithoutDuplicates)
-=======
->>>>>>> cc32477 (performed dq checks)
   }
 
 
