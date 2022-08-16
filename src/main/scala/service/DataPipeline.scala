@@ -34,6 +34,7 @@ object DataPipeline {
     val timestampFilledDF = fillCurrentTime(numericFilledDF, ApplicationConstants.CLICK_STREAM_TIMESTAMP)
     val falseFilledDF = fillCustomValues(timestampFilledDF, ApplicationConstants.CLICK_STREAM_BOOLEAN, "FALSE")
     val unknownFilledDF = fillCustomValues(falseFilledDF, ApplicationConstants.CLICK_STREAM_STRING, "UNKNOWN")
+    unknownFilledDF.show(10)
 
     //converting string to timestamp format
     val convertedDF = stringToTimestamp(unknownFilledDF, ApplicationConstants.TIME_STAMP_COL, ApplicationConstants.INPUT_TIME_STAMP_FORMAT)
