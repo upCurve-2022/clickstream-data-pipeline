@@ -1,5 +1,6 @@
 package service
 
+import checks.DataQualityChecks.{ nullCheck, schemaValidationCheck}
 import cleanser.FileCleanser._
 import com.typesafe.config.Config
 import constants.ApplicationConstants
@@ -28,17 +29,16 @@ object DataPipeline {
     val clickStreamDF = fileReader(clickStreamInputPath, FILE_FORMAT)
 
     //converting string to timestamp format
-    val convertedDF = stringToTimestamp(clickStreamDF, ApplicationConstants.TIME_STAMP_COL, ApplicationConstants.INPUT_TIME_STAMP_FORMAT)
+    val convertedDF = stringToTimestamp(clickStreamDF, TIME_STAMP_COL, INPUT_TIME_STAMP_FORMAT)
 
     //modifying the data types of the columns of the click stream dataset
-    val modifiedClickStreamDF = colDatatypeModifier(convertedDF, ApplicationConstants.CLICK_STREAM_DATATYPE)
+    val modifiedClickStreamDF = colDatatypeModifier(convertedDF, CLICK_STREAM_DATATYPE)
 
     //Removing rows when primary columns are null
-    val rowEliminatedDF = removeRows(modifiedClickStreamDF, ApplicationConstants.CLICK_STREAM_NOT_NULL_KEYS)
+    val rowEliminatedDF = removeRows(modifiedClickStreamDF, CLICK_STREAM_NOT_NULL_KEYS)
 
     //Replacing null in other rows
     val timestampFilledDF = fillCurrentTime(rowEliminatedDF, ApplicationConstants.CLICK_STREAM_TIMESTAMP)
-
 
     val falseFilledDF = fillCustomValues(timestampFilledDF, clickStreamNullFillValues)
 
@@ -50,6 +50,12 @@ object DataPipeline {
     val clickStreamDFWithoutDuplicates = removeDuplicates(modifiedDF, ApplicationConstants.CLICK_STREAM_PRIMARY_KEYS, Some(ApplicationConstants.TIME_STAMP_COL))
 
     //logging information about click stream dataset
+
+    val clickStreamMandatoryCol = CLICK_STREAM_DATATYPE.map(x => x._1)
+    val itemMandatoryCol = ITEM_DATATYPE.map(x => x._1)
+    nullCheck(clickStreamDFWithoutDuplicates, clickStreamMandatoryCol)
+    schemaValidationCheck(clickStreamDFWithoutDuplicates)
+
     log.warn("Total items in the click stream dataset " + clickStreamDFWithoutDuplicates.count())
 
     //writing the resultant data to a file
@@ -58,6 +64,7 @@ object DataPipeline {
     /** **************ITEM DATASET*************** */
     //reading item dataset
     val itemDF = fileReader(itemDataInputPath, ApplicationConstants.FILE_FORMAT)
+
     //handling null values for item dataset
     val rowEliminatedItemDF = removeRows(itemDF, ApplicationConstants.ITEM_NOT_NULL_KEYS)
 
@@ -84,14 +91,16 @@ val nullHandledJoinTable=fillCustomValues(joinedDataframe,itemDataNullFillValues
     val transformJoinedDF = transform.JoinDatasets.transformDataFrame(nullHandledJoinTable)
     transformJoinedDF.show()
 
-
     //testing
     val df = transformJoinedDF.filter(transformJoinedDF.col("department_name") === "unknown" && transformJoinedDF.col("product_type") === "unknown" && transformJoinedDF.col("vendor_id") === (-1) &&
       transformJoinedDF.col("item_price") === (-1))
     transformJoinedDF.printSchema()
+
+    nullCheck(itemDFWithoutDuplicates, itemMandatoryCol)
+    schemaValidationCheck(itemDFWithoutDuplicates)
+
     //writing the resultant data of item dataset to a file
     writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
-
 
     //final df to be inserted - write into table
     //demo table
