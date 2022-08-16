@@ -22,6 +22,4 @@ libraryDependencies ++= Seq(
   //for doing testing
   "org.scalatest" %% "scalatest" % "3.1.0" % Test,
   "mysql" % "mysql-connector-java" % "8.0.30",
-  "com.microsoft.sqlserver" % "mssql-jdbc" % "6.1.0.jre8" %"provided",
-  "com.thetransactioncompany" % "java-property-utils" % "1.8"
 )
