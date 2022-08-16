@@ -100,9 +100,6 @@ val nullHandledJoinTable=fillCustomValues(joinedDataframe,itemDataNullFillValues
 
 
 
-//    timestampFilledDF.show(10)
-
-
 
 
 
