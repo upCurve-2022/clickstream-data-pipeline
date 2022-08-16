@@ -24,7 +24,7 @@ object DataPipeline {
 
   def execute(): Unit = {
 
-    /** ***************CLICK STREAM DATASET********************* */
+    /*****************CLICK STREAM DATASET**********************/
     //reading click stream dataset
     val clickStreamDF = fileReader(clickStreamInputPath, FILE_FORMAT)
 
@@ -77,6 +77,11 @@ object DataPipeline {
 
     //remove duplicates from the item dataset
     val itemDFWithoutDuplicates = removeDuplicates(modifiedItemDF, ApplicationConstants.ITEM_PRIMARY_KEYS)
+    
+    /performing data quality checks on item dataset
+
+    nullCheck(itemDFWithoutDuplicates, itemMandatoryCol)
+    schemaValidationCheck(itemDFWithoutDuplicates)
 
     //logging information about item dataset
     log.warn("Total items in the item dataset " + itemDFWithoutDuplicates.count())
@@ -96,9 +101,7 @@ val nullHandledJoinTable=fillCustomValues(joinedDataframe,itemDataNullFillValues
       transformJoinedDF.col("item_price") === (-1))
     transformJoinedDF.printSchema()
 
-    nullCheck(itemDFWithoutDuplicates, itemMandatoryCol)
-    schemaValidationCheck(itemDFWithoutDuplicates)
-
+    /
     //writing the resultant data of item dataset to a file
     writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
 
