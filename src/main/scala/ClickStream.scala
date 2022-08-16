@@ -1,5 +1,4 @@
-
-import exceptions.Exceptions.{ColumnNotFoundException, DataframeIsEmptyException, EmptyFilePathException, FilePathNotFoundException, FileReaderException, FileWriterException}
+import exceptions.Exceptions.{ColumnNotFoundException, DataframeIsEmptyException, FileReaderException, FileWriterException}
 import service.DataPipeline.{execute, log}
 
 import scala.sys.exit
@@ -18,12 +17,7 @@ object ClickStream {
         exit(1)
       case ex: ColumnNotFoundException => log.error("ColumnNotFoundException:" + ex.message)
         exit(1)
-      case ex : EmptyFilePathException => log.error("EmptyFilePathException:" + ex.message)
-        exit(1)
-      case ex : FilePathNotFoundException => log.error("FilePathNotFoundException:" + ex.message)
-        exit(1)
       case ex: FileWriterException => log.error("FileWriterException:" + ex.message)
-        exit(1)
 
     }
 
