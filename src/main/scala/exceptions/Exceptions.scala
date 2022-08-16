@@ -11,3 +11,4 @@ object Exceptions{
   case class SchemaValidationFailedException(message : String) extends Exception(message)
   case class NullValuesExistException(message : String) extends Exception(message)
 }
+
