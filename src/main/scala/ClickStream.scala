@@ -2,6 +2,8 @@
 import exceptions.Exceptions.{ColumnNotFoundException, DataframeIsEmptyException, EmptyFilePathException, FilePathNotFoundException, FileReaderException, FileWriterException, InvalidInputFormatException, NullValuesExistException, SchemaValidationFailedException}
 import service.DataPipeline.{execute, log}
 
+import scala.sys.exit
+
 
 object ClickStream {
   def main(args: Array[String]): Unit = {

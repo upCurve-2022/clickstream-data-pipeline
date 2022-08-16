@@ -45,17 +45,16 @@ object DataPipeline {
     //converting redirection column into lowercase
     val modifiedDF = toLowercase(falseFilledDF, ApplicationConstants.REDIRECTION_COL)
 
-
     //remove duplicates from the click stream dataset
     val clickStreamDFWithoutDuplicates = removeDuplicates(modifiedDF, ApplicationConstants.CLICK_STREAM_PRIMARY_KEYS, Some(ApplicationConstants.TIME_STAMP_COL))
 
-    //logging information about click stream dataset
-
+    //performind data quality checks on clickstream dataset
     val clickStreamMandatoryCol = CLICK_STREAM_DATATYPE.map(x => x._1)
     val itemMandatoryCol = ITEM_DATATYPE.map(x => x._1)
     nullCheck(clickStreamDFWithoutDuplicates, clickStreamMandatoryCol)
     schemaValidationCheck(clickStreamDFWithoutDuplicates)
 
+    //logging information about click stream dataset
     log.warn("Total items in the click stream dataset " + clickStreamDFWithoutDuplicates.count())
 
     //writing the resultant data to a file
@@ -78,8 +77,7 @@ object DataPipeline {
     //remove duplicates from the item dataset
     val itemDFWithoutDuplicates = removeDuplicates(modifiedItemDF, ApplicationConstants.ITEM_PRIMARY_KEYS)
     
-    /performing data quality checks on item dataset
-
+    //performing data quality checks on item dataset
     nullCheck(itemDFWithoutDuplicates, itemMandatoryCol)
     schemaValidationCheck(itemDFWithoutDuplicates)
 
@@ -91,7 +89,8 @@ object DataPipeline {
     joinedDataframe.show(joinedDataframe.count().toInt)
     joinedDataframe.printSchema()
     joinedDataframe.show()
-val nullHandledJoinTable=fillCustomValues(joinedDataframe,itemDataNullFillValues)
+    val nullHandledJoinTable=fillCustomValues(joinedDataframe,itemDataNullFillValues)
+
     // transform
     val transformJoinedDF = transform.JoinDatasets.transformDataFrame(nullHandledJoinTable)
     transformJoinedDF.show()
@@ -101,9 +100,8 @@ val nullHandledJoinTable=fillCustomValues(joinedDataframe,itemDataNullFillValues
       transformJoinedDF.col("item_price") === (-1))
     transformJoinedDF.printSchema()
 
-    /
     //writing the resultant data of item dataset to a file
-    writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
+    //writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
 
     //final df to be inserted - write into table
     //demo table
