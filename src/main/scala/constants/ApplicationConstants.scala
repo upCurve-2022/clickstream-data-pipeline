@@ -9,15 +9,13 @@ object ApplicationConstants {
   val ITEM_PRIMARY_KEYS : Seq[String] = Seq("item_id")
 
   //constants for null values handling
-  val CLICK_STREAM_NOT_NULL_KEYS = Seq("visitor_id", "item_id")
-  val CLICK_STREAM_BOOLEAN = Seq("is_add_to_cart","is_order_placed")
-  val CLICK_STREAM_TIMESTAMP = Seq("event_timestamp")
-  val CLICK_STREAM_NUMERIC = Seq("id", "session_id")
-  val CLICK_STREAM_STRING = Seq("device_type", "redirection_source")
+  val CLICK_STREAM_NOT_NULL_KEYS=Seq( "visitor_id","item_id")
+  val CLICK_STREAM_TIME_STAMP = Seq("event_timestamp")
+  val COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP=Map("id"->(-1),"device_type"->"UNKNOWN","session_id"->"UNKNOWN","redirection_source"->"UNKNOWN","is_add_to_cart"->false,"is_order_placed"->false)
 
   val ITEM_NOT_NULL_KEYS = Seq("item_id")
-  val ITEM_DATA_NUMERIC = Seq("item_price","vendor_id")
-  val ITEM_DATA_STRING = Seq("product_type","department_name","vendor_name")
+  val COLUMN_NAME_DEFAULT_VALUE_ITEM_DATA_MAP=Map("item_price"->(-1),"product_type"->"UNKNOWN","department_name"->"UNKNOWN","vendor_id"->(-1),"vendor_name"->"UNKNOWN")
+
 
   //output path
   val CLICK_STREAM_OUTPUT_PATH: String = "spark.app.clickStreamOutputPath"
@@ -47,5 +45,8 @@ object ApplicationConstants {
     ("department_name", "string"),
     ("vendor_id", "int"),
     ("vendor_name", "string"))
+
+  val CLICK_STREAM_FOREIGN_KEY=Seq("item_id")
+
 
 }
