@@ -7,7 +7,6 @@ import constants.ApplicationConstants
 import constants.ApplicationConstants.{CLICK_STREAM_DATATYPE, CLICK_STREAM_INPUT_PATH, CLICK_STREAM_OUTPUT_PATH, FILE_FORMAT, ITEM_DATATYPE, ITEM_DATA_INPUT_PATH, ITEM_OUTPUT_PATH}
 import org.apache.log4j.Logger
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions.col
 import service.FileReader.fileReader
 import service.FileWriter.writeToOutputPath
 import utils.ApplicationUtils.{configuration, createSparkSession}
@@ -23,9 +22,8 @@ object DataPipeline {
 
 
   def execute(): Unit = {
-    //reading click stream dataset
-
     /*****************CLICK STREAM DATASET**********************/
+    //reading click stream dataset
     val clickStreamDF = fileReader(clickStreamInputPath, FILE_FORMAT)
 
     //Removing rows when primary columns are null
@@ -49,13 +47,13 @@ object DataPipeline {
     //remove duplicates from the click stream dataset
     val clickStreamDFWithoutDuplicates = removeDuplicates(modifiedClickStreamDF, ApplicationConstants.CLICK_STREAM_PRIMARY_KEYS, Some(ApplicationConstants.TIME_STAMP_COL))
 
-    //logging information about click stream dataset
-
+    //performing data quality checks on clickstream dataset
     val clickStreamMandatoryCol = CLICK_STREAM_DATATYPE.map(x => x._1)
     val itemMandatoryCol = ITEM_DATATYPE.map(x => x._1)
     nullCheck(clickStreamDFWithoutDuplicates, clickStreamMandatoryCol)
     schemaValidationCheck(clickStreamDFWithoutDuplicates)
 
+    //logging information about click stream dataset
     log.warn("Total items in the click stream dataset " + clickStreamDFWithoutDuplicates.count())
 
     //writing the resultant data to a file
@@ -81,14 +79,12 @@ object DataPipeline {
     //logging information about item dataset
     log.warn("Total items in the item dataset " + itemDFWithoutDuplicates.count())
 
+    //performing data quality checks on item dataset
     nullCheck(itemDFWithoutDuplicates, itemMandatoryCol)
     schemaValidationCheck(itemDFWithoutDuplicates)
 
     //writing the resultant data of item dataset to a file
     writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
-
-
-
 
   }
 
