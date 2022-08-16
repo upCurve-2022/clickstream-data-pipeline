@@ -59,16 +59,6 @@ object ApplicationConstants {
     "visitor_id" -> "unknown",
     "redirection_source" -> "unknown")
 
-//  val joinTableNullFillValues = Map("item_price" -> (-1),
-//    "vendor_id" -> (-1),
-//    "department_name" -> "unknown",
-//    "product_type" -> "unknown",
-//    "vendor_name" -> "unknown",
-//    "is_add_to_cart" -> false,
-//    "is_order_placed" -> false,
-//    "device_type" -> "unknown",
-//    "visitor_id" -> "unknown",
-//    "redirection_source" -> "unknown")
   val itemDataNullFillValues = Map("item_price" -> (-1),
     "vendor_id" -> (-1),
     "department_name" -> "unknown",
@@ -78,7 +68,6 @@ object ApplicationConstants {
   //  Join
   val join_key: Seq[String] = Seq("item_id")
   val join_type: String = "left"
-
 
   val DEFAULT_STRING_NULL = "unknown"
   val DEFAULT_NUMERIC_NULL = (-1)

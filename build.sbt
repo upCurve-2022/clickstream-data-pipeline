@@ -20,13 +20,7 @@ libraryDependencies ++= Seq(
   //logging library
   "org.slf4j" % "slf4j-api" % "1.7.29",
   //for doing testing
-<<<<<<< HEAD
-  "org.scalatest" %% "scalatest" % "3.1.0" % Test
-)
-=======
   "org.scalatest" %% "scalatest" % "3.1.0" % Test,
   "mysql" % "mysql-connector-java" % "8.0.30",
-  "com.microsoft.sqlserver" % "mssql-jdbc" % "6.1.0.jre8" %"provided",
-  "com.thetransactioncompany" % "java-property-utils" % "1.8"
 )
 
