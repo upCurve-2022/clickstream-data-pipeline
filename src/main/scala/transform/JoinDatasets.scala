@@ -1,5 +1,6 @@
 package transform
 
+<<<<<<< HEAD
 import constants.ApplicationConstants._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{current_timestamp, to_date}
@@ -26,4 +27,8 @@ joinedDataFrame
 
     nextJoin
   }
+=======
+object JoinDatasets {
+
+>>>>>>> 3193cfa3108ef36f3dfafd3c133b1b47ed3e2eb8
 }

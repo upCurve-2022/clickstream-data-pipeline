@@ -1,9 +1,16 @@
 package cleanser
 
+<<<<<<< HEAD
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions._
 import utils.ApplicationUtils.check
+=======
+import utils.ApplicationUtils.{check}
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.expressions.Window
+import org.apache.spark.sql.functions.{ col, desc, lower, row_number, to_timestamp}
+>>>>>>> 3193cfa3108ef36f3dfafd3c133b1b47ed3e2eb8
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -18,6 +25,7 @@ object FileCleanser {
   }
 
   //Handling null values - filling null value with a custom value
+<<<<<<< HEAD
   def fillCustomValues(df:DataFrame,nullMap:Map[String,Any]):DataFrame = {
 
     val filledDf:DataFrame = df.na.fill(nullMap)
@@ -29,6 +37,17 @@ object FileCleanser {
   def fillCurrentTime(df:DataFrame, columnsSeq:Seq[String]):DataFrame = {
     val currentTime = DateTimeFormatter.ofPattern(constants.ApplicationConstants.INPUT_TIME_STAMP_FORMAT).format(LocalDateTime.now)
     val timestampFilledDf:DataFrame = df.na.fill(currentTime,columnsSeq)
+=======
+  def fillCustomValues(df:DataFrame, columnsSeq:Seq[String], customVal:String):DataFrame = {
+    val filledDf:DataFrame = df.na.fill(customVal,columnsSeq)
+    filledDf
+  }
+
+  //Handling null values -filling null value with the current timestamp
+  def fillCurrentTime(df:DataFrame, columnsSeq:Seq[String]):DataFrame = {
+    val currentTime = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm").format(LocalDateTime.now)
+    val timestampFilledDf:DataFrame = df.na.fill(currentTime:String,columnsSeq)
+>>>>>>> 3193cfa3108ef36f3dfafd3c133b1b47ed3e2eb8
     timestampFilledDf
   }
 
@@ -52,14 +71,22 @@ object FileCleanser {
     val colList = colDatatype.map(x => x._1)
     colList.foreach { (element: String) => check(inputDF, element) }
     //val dataTypeList = colDatatype.map(x => x._2)
+<<<<<<< HEAD
 //    val outputDF = inputDF.select(colDatatype.map{case(c,t) => inputDF.col(c).cast(t)}:_*)
     val outputDF = inputDF.select(colDatatype.map{x => inputDF.col(x._1).cast(x._2)}:_*)
+=======
+    val outputDF = inputDF.select(colDatatype.map{case(c,t) => inputDF.col(c).cast(t)}:_*)
+>>>>>>> 3193cfa3108ef36f3dfafd3c133b1b47ed3e2eb8
     outputDF
   }
 
   /******************REMOVING DUPLICATES FROM THE DATASET******************/
   //Handling Duplicates
+<<<<<<< HEAD
   def removeDuplicates(df: DataFrame, primaryKeyCols : Seq[String], orderByCol: Option[String]=None) : DataFrame = {
+=======
+  def removeDuplicates(df: DataFrame, primaryKeyCols : Seq[String], orderByCol: Option[String]) : DataFrame = {
+>>>>>>> 3193cfa3108ef36f3dfafd3c133b1b47ed3e2eb8
     orderByCol match {
       case Some(column) =>
         //Remove duplicates from the click stream dataset
