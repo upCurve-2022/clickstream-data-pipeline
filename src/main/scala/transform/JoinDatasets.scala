@@ -1,12 +1,29 @@
 package transform
 
+import constants.ApplicationConstants._
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.functions.{current_timestamp, to_date}
+import utils.ApplicationUtils.check
 
 object JoinDatasets {
-  def joinDataFrame(df1:DataFrame, df2:DataFrame, joinType:String): DataFrame ={
+  def joinDataFrame(df1: DataFrame, df2: DataFrame, joinKey: Seq[String], joinType: String): DataFrame = {
 
-    val df1ForeignKey=constants.ApplicationConstants.CLICK_STREAM_FOREIGN_KEY
-    val joinExtra=df1.join(df2,df1ForeignKey,joinType)
-    joinExtra
+
+    joinKey.foreach { (element: String) => check(df1, element) }
+    joinKey.foreach { (element: String) => check(df2, element) }
+
+    val joinedDataFrame: DataFrame = df1.join(df2, joinKey, joinType)
+    joinedDataFrame
+    //    val joinedTableNullFill = fillCustomValues(joinedDataFrame,itemDataNullFillValues)
+    //    joinedTableNullFill
+  }
+
+
+  def transformDataFrame(df: DataFrame): DataFrame = {
+
+    val newDfJoin = df.withColumn(EVENT_DATE, to_date(df.col(TIME_STAMP_COL), DATE_FORMAT))
+    val nextJoin = newDfJoin.withColumn(RECORD_LOAD_TIME, current_timestamp())
+
+    nextJoin
   }
 }
