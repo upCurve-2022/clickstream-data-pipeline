@@ -37,4 +37,8 @@ object ApplicationUtils {
       throw ColumnNotFoundException("The specified column does not exist")
   }
 
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 3193cfa3108ef36f3dfafd3c133b1b47ed3e2eb8
