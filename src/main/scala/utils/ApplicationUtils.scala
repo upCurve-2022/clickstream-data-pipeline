@@ -10,7 +10,7 @@ object ApplicationUtils {
 
   //configuration
   def configuration():Config = {
-    val parsedConfig = ConfigFactory.parseFile(new File("config/local.conf"))
+    val parsedConfig = ConfigFactory.parseFile(new File("conf/local.conf"))
     val appConf: Config = ConfigFactory.load(parsedConfig)
     //    val appName = appConf.getString("spark.app.name")
     //    val appMaster = appConf.getString("spark.app.master")

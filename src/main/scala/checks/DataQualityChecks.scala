@@ -11,8 +11,7 @@ object DataQualityChecks {
       if(inputDF.filter(inputDF(c).isNull
         || inputDF(c) === ""
         || inputDF(c).contains("NULL")
-        || inputDF(c).contains("null")
-        || inputDF(c).isNaN).count() != 0){
+        || inputDF(c).contains("null")).count() != 0){
         throw NullValuesExistException("Null values are present int the dataset")
       }
     })
