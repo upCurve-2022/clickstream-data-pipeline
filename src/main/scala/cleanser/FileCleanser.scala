@@ -1,9 +1,9 @@
 package cleanser
 
-import utils.ApplicationUtils.{check}
+import utils.ApplicationUtils.check
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions.{ col, desc, lower, row_number, to_timestamp}
+import org.apache.spark.sql.functions.{coalesce, col, desc, lit, lower, row_number, to_timestamp}
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -11,25 +11,22 @@ import java.time.format.DateTimeFormatter
 object FileCleanser {
 
   /*********************REMOVING NULLS FROM THE DATASET****************************/
-  //Handling null values - removing rows when primary key is null
+  //removing rows when primary key is null
   def removeRows(df: DataFrame, primaryColumns:Seq[String]): DataFrame = {
     val rowEliminatedDf = df.na.drop("any",primaryColumns)
     rowEliminatedDf
   }
-
-  //Handling null values - filling null value with a custom value
-  def fillCustomValues(df:DataFrame, columnsSeq:Seq[String], customVal:String):DataFrame = {
-    val filledDf:DataFrame = df.na.fill(customVal,columnsSeq)
-    filledDf
+  //filling custom values
+  def fillValues(df:DataFrame,colNameDefaultValue:Map[String,Any]): DataFrame ={
+    val newDF=df.na.fill(colNameDefaultValue)
+    newDF
   }
-
-  //Handling null values -filling null value with the current timestamp
-  def fillCurrentTime(df:DataFrame, columnsSeq:Seq[String]):DataFrame = {
-    val currentTime = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm").format(LocalDateTime.now)
-    val timestampFilledDf:DataFrame = df.na.fill(currentTime:String,columnsSeq)
-    timestampFilledDf
+  //filling current time stamp
+  def fillCurrentTime(df:DataFrame,cols:Seq[String]): DataFrame={
+    val currentTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now)
+    val fillTimeDF=df.withColumn("event_timestamp",coalesce(col("event_timestamp"),lit(currentTime)))
+    fillTimeDF
   }
-
   /**************MODIFYING COLUMN DATA TYPES*********************/
   //converts string to timestamp format
   def stringToTimestamp(inputDF : DataFrame, colName: String, inputFormat : String) : DataFrame = {
