@@ -1,6 +1,5 @@
 package transform
 
-<<<<<<< HEAD
 import constants.ApplicationConstants._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{current_timestamp, to_date}
@@ -14,9 +13,9 @@ object JoinDatasets {
     joinKey.foreach { (element: String) => check(df2, element) }
 
     val joinedDataFrame: DataFrame = df1.join(df2, joinKey, joinType)
-joinedDataFrame
-//    val joinedTableNullFill = fillCustomValues(joinedDataFrame,itemDataNullFillValues)
-//    joinedTableNullFill
+    joinedDataFrame
+    //    val joinedTableNullFill = fillCustomValues(joinedDataFrame,itemDataNullFillValues)
+    //    joinedTableNullFill
   }
 
 
@@ -27,8 +26,4 @@ joinedDataFrame
 
     nextJoin
   }
-=======
-object JoinDatasets {
-
->>>>>>> 3193cfa3108ef36f3dfafd3c133b1b47ed3e2eb8
 }
