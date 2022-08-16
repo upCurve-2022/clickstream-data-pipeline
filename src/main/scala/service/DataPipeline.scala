@@ -5,9 +5,10 @@ import com.typesafe.config.Config
 import constants.ApplicationConstants
 import constants.ApplicationConstants.{CLICK_STREAM_INPUT_PATH, CLICK_STREAM_OUTPUT_PATH, FILE_FORMAT, ITEM_DATA_INPUT_PATH, ITEM_OUTPUT_PATH}
 import org.apache.log4j.Logger
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import service.FileReader.fileReader
 import service.FileWriter.writeToOutputPath
+import service.FileWriter.fileWriter
 import utils.ApplicationUtils.{configuration, createSparkSession}
 
 object DataPipeline {
@@ -76,6 +77,10 @@ object DataPipeline {
     //writing the resultant data of item dataset to a file
     writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
 
+
+     //final df to be inserted - write into table
+    //demo table
+    //fileWriter("table2", itemDFWithoutDuplicates)
   }
 
 }

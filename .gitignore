@@ -22,6 +22,8 @@
 
 /data/output_data/
 
+/data/encrypted_password.txt
+
 /.bsp
 
 /metastore_db
