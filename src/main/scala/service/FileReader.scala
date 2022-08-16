@@ -1,6 +1,6 @@
 package service
 
-import exceptions.Exceptions.{DataframeIsEmptyException, EmptyFilePathException, FilePathNotFoundException, FileReaderException}
+import exceptions.Exceptions.{DataframeIsEmptyException, EmptyFilePathException, FilePathNotFoundException, FileReaderException, InvalidInputFormatException}
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{AnalysisException, DataFrame, SparkSession}
 
@@ -15,6 +15,7 @@ object FileReader extends Logging {
 
     } catch {
       case ex : AnalysisException => throw FilePathNotFoundException("The file path is not found.")
+      case ex : java.lang.ClassNotFoundException => throw InvalidInputFormatException("The file format is invalid")
       case ex: Exception => throw FileReaderException("Unable to read file from given path.")
 
     }

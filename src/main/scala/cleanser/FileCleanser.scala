@@ -1,10 +1,9 @@
 package cleanser
 
+import utils.ApplicationUtils.check
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions._
-import utils.ApplicationUtils.check
-
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -66,7 +65,7 @@ object FileCleanser {
         val dfRemoveDuplicates = df.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col): _*).orderBy(desc(column))))
           .filter(col("rn") === 1).drop("rn")
         dfRemoveDuplicates
-        //Remove duplicates from the item dataset
+      //Remove duplicates from the item dataset
       case None => val dfRemoveDuplicates = df.dropDuplicates(primaryKeyCols)
         dfRemoveDuplicates
     }
