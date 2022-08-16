@@ -51,8 +51,12 @@ object FileCleanser {
     val colList = colDatatype.map(x => x._1)
     colList.foreach { (element: String) => check(inputDF, element) }
     //val dataTypeList = colDatatype.map(x => x._2)
+<<<<<<< HEAD
 //    val outputDF = inputDF.select(colDatatype.map{case(c,t) => inputDF.col(c).cast(t)}:_*)
     val outputDF = inputDF.select(colDatatype.map{x => inputDF.col(x._1).cast(x._2)}:_*)
+=======
+    val outputDF = inputDF.select(colDatatype.map{x => inputDF.col(x._1).cast(x._2)}: _*)//_* ?
+>>>>>>> cc32477 (performed dq checks)
     outputDF
   }
 

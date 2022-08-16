@@ -1,9 +1,12 @@
 package checks
 
 import exceptions.Exceptions.{NullValuesExistException, SchemaValidationFailedException}
+import org.apache.log4j.Logger
 import org.apache.spark.sql.DataFrame
+import service.DataPipeline.getClass
 
 object DataQualityChecks {
+  val log: Logger = Logger.getLogger(getClass)
 
   //nulls
   def nullCheck(inputDF : DataFrame, columns : List[String]): List[Unit] = {
@@ -19,6 +22,7 @@ object DataQualityChecks {
 
   //duplicates
 
+
   //schema validation
   def schemaValidationCheck(inputDF : DataFrame): Unit ={
     inputDF.schema.fields.foreach(f=> {
@@ -29,6 +33,8 @@ object DataQualityChecks {
       })
     })
   }
+
+
 
   //categorical
 
