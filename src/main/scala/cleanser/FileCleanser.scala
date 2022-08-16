@@ -1,9 +1,9 @@
 package cleanser
 
-import utils.ApplicationUtils.{check}
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions.{ col, desc, lower, row_number, to_timestamp}
+import org.apache.spark.sql.functions._
+import utils.ApplicationUtils.check
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -18,12 +18,9 @@ object FileCleanser {
   }
 
   //Handling null values - filling null value with a custom value
-  def fillCustomValues(df:DataFrame, columnsSeq:Seq[String], customVal:String):DataFrame = {
-    val filledDf:DataFrame = df.na.fill(customVal,columnsSeq)
-    filledDf
-  }
-  def fillCustomNumericValues(df:DataFrame, columnsSeq:Seq[String], customVal:Float):DataFrame = {
-    val filledDf:DataFrame = df.na.fill(customVal,columnsSeq)
+  def fillCustomValues(df:DataFrame,nullMap:Map[String,Any]):DataFrame = {
+
+    val filledDf:DataFrame = df.na.fill(nullMap)
     filledDf
   }
 
@@ -31,7 +28,7 @@ object FileCleanser {
   //Handling null values -filling null value with the current timestamp
   def fillCurrentTime(df:DataFrame, columnsSeq:Seq[String]):DataFrame = {
     val currentTime = DateTimeFormatter.ofPattern(constants.ApplicationConstants.INPUT_TIME_STAMP_FORMAT).format(LocalDateTime.now)
-    val timestampFilledDf:DataFrame = df.na.fill(currentTime:String,columnsSeq)
+    val timestampFilledDf:DataFrame = df.na.fill(currentTime,columnsSeq)
     timestampFilledDf
   }
 
@@ -55,7 +52,8 @@ object FileCleanser {
     val colList = colDatatype.map(x => x._1)
     colList.foreach { (element: String) => check(inputDF, element) }
     //val dataTypeList = colDatatype.map(x => x._2)
-    val outputDF = inputDF.select(colDatatype.map{case(c,t) => inputDF.col(c).cast(t)}:_*)
+//    val outputDF = inputDF.select(colDatatype.map{case(c,t) => inputDF.col(c).cast(t)}:_*)
+    val outputDF = inputDF.select(colDatatype.map{x => inputDF.col(x._1).cast(x._2)}:_*)
     outputDF
   }
 
