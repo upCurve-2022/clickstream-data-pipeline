@@ -29,22 +29,18 @@ object DataPipeline {
     val clickStreamDF = fileReader(clickStreamInputPath, FILE_FORMAT)
 
     //change the data types
-    val timeStampDataTypeDF=datatype.DataType.stringToTimestamp(clickStreamDF,"event_timestamp",constants.ApplicationConstants.INPUT_TIME_STAMP_FORMAT)
-    val changeDataTypeDF=datatype.DataType.colDatatypeModifier(timeStampDataTypeDF,constants.ApplicationConstants.CLICK_STREAM_DATATYPE)
+    val timeStampDataTypeDF=cleanser.FileCleanser.stringToTimestamp(clickStreamDF,"event_timestamp",constants.ApplicationConstants.INPUT_TIME_STAMP_FORMAT)
+    val changeDataTypeDF=cleanser.FileCleanser.colDatatypeModifier(timeStampDataTypeDF,constants.ApplicationConstants.CLICK_STREAM_DATATYPE)
 
     //eliminate rows on NOT_NULL_COLUMNS
     val rowEliminatedClickStreamDF = cleanser.FileCleanser.removeRows(changeDataTypeDF,constants.ApplicationConstants.CLICK_STREAM_NOT_NULL_KEYS)
     // fill time stamp
-    val timeFilledDF=cleanser.FileCleanser.fillCurrentTime(rowEliminatedClickStreamDF,constants.ApplicationConstants.CLICK_STREAM_TIME_STAMP)
+    val timeFilledDF=cleanser.FileCleanser.fillCurrentTime(rowEliminatedClickStreamDF,constants.ApplicationConstants.CLICK_STREAM_TIMESTAMP)
     // fill null values
     val nullFilledClickSteamDF=cleanser.FileCleanser.fillValues(timeFilledDF,constants.ApplicationConstants.COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP)
 
-
     //converting redirection column into lowercase
     val modifiedDF = toLowercase(nullFilledClickSteamDF, ApplicationConstants.REDIRECTION_COL)
-    
-    //converting redirection column into lowercase
-    val modifiedDF = toLowercase(falseFilledDF, ApplicationConstants.REDIRECTION_COL)
 
     //remove duplicates from the click stream dataset
     val clickStreamDFWithoutDuplicates = removeDuplicates(modifiedDF, ApplicationConstants.CLICK_STREAM_PRIMARY_KEYS, Some(ApplicationConstants.TIME_STAMP_COL))
@@ -67,10 +63,10 @@ object DataPipeline {
     val itemDF = fileReader(itemDataInputPath, ApplicationConstants.FILE_FORMAT)
 
     //change the data type
-    val dataTypesDF=datatype.DataType.colDatatypeModifier(itemDataRead,constants.ApplicationConstants.ITEM_DATATYPE_LIST)
+    val dataTypesDF=cleanser.FileCleanser.colDatatypeModifier(itemDF,constants.ApplicationConstants.ITEM_DATATYPE)
 
     //eliminate rows on NOT_NULL_COLUMNS
-    val rowEliminatedItemDF = cleanser.FileCleanser.removeRows(dataTypesDF,constants.ApplicationConstants.ITEM_DATA_NOT_NULL_KEYS)
+    val rowEliminatedItemDF = cleanser.FileCleanser.removeRows(dataTypesDF,constants.ApplicationConstants.ITEM_NOT_NULL_KEYS)
 
     //fill null values
     val nullFilledItemF=cleanser.FileCleanser.fillValues(rowEliminatedItemDF,constants.ApplicationConstants.COLUMN_NAME_DEFAULT_VALUE_ITEM_DATA_MAP)
@@ -80,24 +76,27 @@ object DataPipeline {
 
     val itemDFWithoutDuplicates = removeDuplicates(nullFilledItemF, ApplicationConstants.ITEM_PRIMARY_KEYS, None)
 
-    //join the columns
-    val joinedLeftDataFrame = transform.JoinDatasets.joinDataFrame(nullFilledClickSteamDF,nullFilledItemF,"left")
-
-    //fill null values
-    val joinedTransform=cleanser.FileCleanser.fillValues(joinedLeftDataFrame,constants.ApplicationConstants.COLUMN_NAME_DEFAULT_VALUE_ITEM_DATA_MAP)
-
-    //add a new column event_d
-    //extract date from TimeStamp Column
-    val addDateDF=transform.TransformOperations.addDate(joinedTransform)
-    addDateDF.show(10)
-
-    //add Timestamp when the record is loaded into the table
-    val addTimeStampDF=transform.TransformOperations.addTimeStamp(addDateDF)
-
     //performing data quality checks on item dataset
     nullCheck(itemDFWithoutDuplicates, itemMandatoryCol)
     schemaValidationCheck(itemDFWithoutDuplicates)
     duplicatesCheck(itemDFWithoutDuplicates, ApplicationConstants.ITEM_PRIMARY_KEYS, None)
+
+    //join the columns
+    val joinedLeftDataFrame = transform.JoinDatasets.joinDataFrame(nullFilledClickSteamDF,nullFilledItemF,join_key,join_type)
+
+    //fill null values
+    val joinedTransform=cleanser.FileCleanser.fillValues(joinedLeftDataFrame,constants.ApplicationConstants.COLUMN_NAME_DEFAULT_VALUE_ITEM_DATA_MAP)
+
+
+    //add a new column event_d
+    //extract date from TimeStamp Column
+    val addDateDF=transform.TransformOperations.addDate(joinedTransform)
+
+
+    //add Timestamp when the record is loaded into the table
+    val addTimeStampDF=transform.TransformOperations.addTimeStamp(addDateDF)
+
+
 
     //logging information about item dataset
     log.warn("Total items in the item dataset " + itemDFWithoutDuplicates.count())
@@ -107,7 +106,7 @@ object DataPipeline {
     joinedDataframe.show(joinedDataframe.count().toInt)
     joinedDataframe.printSchema()
     joinedDataframe.show()
-    val nullHandledJoinTable=fillCustomValues(joinedDataframe,itemDataNullFillValues)
+    val nullHandledJoinTable=fillValues(joinedDataframe,itemDataNullFillValues)
 
     // transform
     val transformJoinedDF = transform.JoinDatasets.transformDataFrame(nullHandledJoinTable)

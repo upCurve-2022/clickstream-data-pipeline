@@ -14,8 +14,6 @@ object JoinDatasets {
 
     val joinedDataFrame: DataFrame = df1.join(df2, joinKey, joinType)
     joinedDataFrame
-    //    val joinedTableNullFill = fillCustomValues(joinedDataFrame,itemDataNullFillValues)
-    //    joinedTableNullFill
   }
 
 

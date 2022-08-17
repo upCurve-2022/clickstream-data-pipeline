@@ -17,7 +17,7 @@ object FileCleanser {
   }
 
   //Handling null values - filling null value with a custom value
-  def fillCustomValues(df:DataFrame,nullMap:Map[String,Any]):DataFrame = {
+  def fillValues(df:DataFrame,nullMap:Map[String,Any]):DataFrame = {
     val filledDf:DataFrame = df.na.fill(nullMap)
     filledDf
   }

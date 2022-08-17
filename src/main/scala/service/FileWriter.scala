@@ -3,6 +3,7 @@ package service
 import exceptions.Exceptions.{DataframeIsEmptyException, FileWriterException}
 import org.apache.spark.sql.DataFrame
 
+import java.io.{File, PrintWriter}
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 import scala.io.Source
