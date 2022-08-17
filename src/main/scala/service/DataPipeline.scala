@@ -81,31 +81,12 @@ object DataPipeline {
     schemaValidationCheck(itemDFWithoutDuplicates)
     duplicatesCheck(itemDFWithoutDuplicates, ApplicationConstants.ITEM_PRIMARY_KEYS, None)
 
-    //join the columns
-    val joinedLeftDataFrame = transform.JoinDatasets.joinDataFrame(nullFilledClickSteamDF,nullFilledItemF,join_key,join_type)
-
-    //fill null values
-    val joinedTransform=cleanser.FileCleanser.fillValues(joinedLeftDataFrame,constants.ApplicationConstants.COLUMN_NAME_DEFAULT_VALUE_ITEM_DATA_MAP)
-
-
-    //add a new column event_d
-    //extract date from TimeStamp Column
-    val addDateDF=transform.TransformOperations.addDate(joinedTransform)
-
-
-    //add Timestamp when the record is loaded into the table
-    val addTimeStampDF=transform.TransformOperations.addTimeStamp(addDateDF)
-
-
-
     //logging information about item dataset
     log.warn("Total items in the item dataset " + itemDFWithoutDuplicates.count())
 
     //  joining two datasets
     val joinedDataframe = joinDataFrame(clickStreamDFWithoutDuplicates, itemDFWithoutDuplicates, join_key, join_type)
-    joinedDataframe.show(joinedDataframe.count().toInt)
-    joinedDataframe.printSchema()
-    joinedDataframe.show()
+
     val nullHandledJoinTable=fillValues(joinedDataframe,itemDataNullFillValues)
 
     // transform
