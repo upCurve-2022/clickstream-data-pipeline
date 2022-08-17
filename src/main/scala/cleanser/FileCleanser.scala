@@ -18,11 +18,9 @@ object FileCleanser {
 
   //Handling null values - filling null value with a custom value
   def fillCustomValues(df:DataFrame,nullMap:Map[String,Any]):DataFrame = {
-
     val filledDf:DataFrame = df.na.fill(nullMap)
     filledDf
   }
-
 
   //Handling null values -filling null value with the current timestamp
   def fillCurrentTime(df:DataFrame,cols:Seq[String]): DataFrame={
@@ -66,7 +64,8 @@ object FileCleanser {
           .filter(col("rn") === 1).drop("rn")
         dfRemoveDuplicates
       //Remove duplicates from the item dataset
-      case None => val dfRemoveDuplicates = df.dropDuplicates(primaryKeyCols)
+      case None =>
+        val dfRemoveDuplicates = df.dropDuplicates(primaryKeyCols)
         dfRemoveDuplicates
     }
   }

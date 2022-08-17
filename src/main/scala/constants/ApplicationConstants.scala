@@ -5,7 +5,7 @@ object ApplicationConstants {
   val CLICK_STREAM_INPUT_PATH: String = "spark.app.clickStreamInputPath"
   val ITEM_DATA_INPUT_PATH: String = "spark.app.itemDataInputPath"
 
-  val CLICK_STREAM_PRIMARY_KEYS: Seq[String] = Seq("visitor_id", "item_id")
+  val CLICK_STREAM_PRIMARY_KEYS: Seq[String] = Seq("session_id", "visitor_id", "item_id")
   val ITEM_PRIMARY_KEYS: Seq[String] = Seq("item_id")
 
   //constants for null values handling

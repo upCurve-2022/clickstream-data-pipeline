@@ -1,6 +1,6 @@
 package service
 
-import checks.DataQualityChecks.{ nullCheck, schemaValidationCheck}
+import checks.DataQualityChecks.{duplicatesCheck, nullCheck, schemaValidationCheck}
 import cleanser.FileCleanser._
 import com.typesafe.config.Config
 import constants.ApplicationConstants
@@ -48,17 +48,18 @@ object DataPipeline {
     //remove duplicates from the click stream dataset
     val clickStreamDFWithoutDuplicates = removeDuplicates(modifiedDF, ApplicationConstants.CLICK_STREAM_PRIMARY_KEYS, Some(ApplicationConstants.TIME_STAMP_COL))
 
-    //performind data quality checks on clickstream dataset
+    //performing data quality checks on click stream dataset
     val clickStreamMandatoryCol = CLICK_STREAM_DATATYPE.map(x => x._1)
     val itemMandatoryCol = ITEM_DATATYPE.map(x => x._1)
     nullCheck(clickStreamDFWithoutDuplicates, clickStreamMandatoryCol)
     schemaValidationCheck(clickStreamDFWithoutDuplicates)
+    duplicatesCheck(clickStreamDFWithoutDuplicates, ApplicationConstants.CLICK_STREAM_PRIMARY_KEYS, Some(ApplicationConstants.TIME_STAMP_COL))
 
     //logging information about click stream dataset
     log.warn("Total items in the click stream dataset " + clickStreamDFWithoutDuplicates.count())
 
     //writing the resultant data to a file
-    //    writeToOutputPath(clickStreamDFWithoutDuplicates, clickStreamOutputPath, ApplicationConstants.FILE_FORMAT)
+    //writeToOutputPath(clickStreamDFWithoutDuplicates, clickStreamOutputPath, ApplicationConstants.FILE_FORMAT)
 
     /** **************ITEM DATASET*************** */
     //reading item dataset
@@ -68,18 +69,18 @@ object DataPipeline {
     val rowEliminatedItemDF = removeRows(itemDF, ApplicationConstants.ITEM_NOT_NULL_KEYS)
 
     //Replacing null in other rows
-
     val unknownFilledItemDF = fillCustomValues(rowEliminatedItemDF, itemDataNullFillValues)
 
     //modifying the data types of the columns of the item dataset
     val modifiedItemDF = colDatatypeModifier(unknownFilledItemDF, ApplicationConstants.ITEM_DATATYPE)
 
     //remove duplicates from the item dataset
-    val itemDFWithoutDuplicates = removeDuplicates(modifiedItemDF, ApplicationConstants.ITEM_PRIMARY_KEYS)
+    val itemDFWithoutDuplicates = removeDuplicates(modifiedItemDF, ApplicationConstants.ITEM_PRIMARY_KEYS, None)
     
     //performing data quality checks on item dataset
     nullCheck(itemDFWithoutDuplicates, itemMandatoryCol)
     schemaValidationCheck(itemDFWithoutDuplicates)
+    duplicatesCheck(itemDFWithoutDuplicates, ApplicationConstants.ITEM_PRIMARY_KEYS, None)
 
     //logging information about item dataset
     log.warn("Total items in the item dataset " + itemDFWithoutDuplicates.count())
@@ -106,11 +107,6 @@ object DataPipeline {
     //final df to be inserted - write into table
     //demo table
     //fileWriter("table2", itemDFWithoutDuplicates)
+
   }
-
-
-
-
-
-
 }
