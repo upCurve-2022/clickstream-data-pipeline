@@ -23,8 +23,9 @@ object DataQualityChecks {
   def duplicatesCheck(inputDF: DataFrame, primaryKeyCols : Seq[String], orderByCol: Option[String]) : Unit = {
     orderByCol match {
       case Some(column) =>
-        inputDF.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col): _*).orderBy(desc(column))))
-        if(col("rn") != 1){
+        val exceptionsDF = inputDF.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col): _*).orderBy(desc(column))))
+          .filter(col("rn") >1).drop("rn")
+        if(exceptionsDF.count() != 0){
           throw DuplicateValuesExistException("Duplicates found in click stream dataset")
         }
       case None =>
