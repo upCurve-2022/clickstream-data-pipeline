@@ -39,6 +39,7 @@ object DataPipeline {
     // fill null values
     val nullFilledClickSteamDF=cleanser.FileCleanser.fillValues(timeFilledDF,constants.ApplicationConstants.COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP)
 
+
     //converting redirection column into lowercase
     val modifiedDF = toLowercase(nullFilledClickSteamDF, ApplicationConstants.REDIRECTION_COL)
 
@@ -71,9 +72,7 @@ object DataPipeline {
     //fill null values
     val nullFilledItemF=cleanser.FileCleanser.fillValues(rowEliminatedItemDF,constants.ApplicationConstants.COLUMN_NAME_DEFAULT_VALUE_ITEM_DATA_MAP)
 
-
     //remove duplicates from the item dataset
-
     val itemDFWithoutDuplicates = removeDuplicates(nullFilledItemF, ApplicationConstants.ITEM_PRIMARY_KEYS, None)
 
     //performing data quality checks on item dataset
