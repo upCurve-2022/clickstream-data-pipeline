@@ -1,0 +1,5 @@
+package cleanser
+
+class NullHandlerTest {
+
+}
