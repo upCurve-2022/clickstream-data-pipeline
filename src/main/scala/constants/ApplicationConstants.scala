@@ -9,7 +9,7 @@ object ApplicationConstants {
   val ITEM_PRIMARY_KEYS: Seq[String] = Seq("item_id")
 
   //constants for null values handling
-  val CLICK_STREAM_NOT_NULL_KEYS = Seq("session_id", "item_id")
+  val CLICK_STREAM_NOT_NULL_KEYS = Seq( "visitor_id","item_id")
   val CLICK_STREAM_TIMESTAMP = Seq("event_timestamp")
   val COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP=Map("id"->(-1),"device_type"->"UNKNOWN","session_id"->"UNKNOWN","redirection_source"->"UNKNOWN","is_add_to_cart"->false,"is_order_placed"->false)
 
