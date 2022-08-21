@@ -1,22 +1,59 @@
 package checks
 
 import exceptions.Exceptions.{DuplicateValuesExistException, NullValuesExistException, SchemaValidationFailedException}
-import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{col, desc, row_number}
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import utils.ApplicationUtils.createSparkSession
+import scala.collection.JavaConversions._
 
 object DataQualityChecks {
 
-  //null check
-  def nullCheck(inputDF : DataFrame, columns : List[String]): List[Unit] = {
-    columns.map(c => {
+  implicit val spark: SparkSession = createSparkSession()
+
+  var count = 0
+  var errorList: List[Row] = List[Row]()
+  val errorSchema: StructType = StructType(Array(
+    StructField("item_id", StringType, nullable = true),
+    StructField("id", IntegerType,nullable = true),
+    StructField("event_timestamp", TimestampType,nullable = true),
+    StructField("device_type", StringType,nullable = true),
+    StructField("session_id", StringType,nullable = true),
+    StructField("visitor_id", StringType,nullable = true),
+    StructField("redirection_source",StringType,nullable = true),
+    StructField("is_add_to_cart", BooleanType,nullable = true),
+    StructField("is_order_placed", BooleanType,nullable = true),
+    StructField("item_price",DoubleType,nullable = true),
+    StructField( "product_type",StringType,nullable = true),
+    StructField("department_name",StringType,nullable = true),
+    StructField( "vendor_id", IntegerType,nullable = true),
+    StructField("vendor_name",StringType,nullable = true)))
+
+  //nulls
+  def nullCheck(inputDF: DataFrame, columns: List[String]): Unit = {
+    columns.foreach(c => {
       if(inputDF.filter(inputDF(c).isNull
         || inputDF(c) === ""
         || inputDF(c).contains("NULL")
         || inputDF(c).contains("null")).count() != 0){
-        throw NullValuesExistException("Null values are present int the dataset")
+        throw NullValuesExistException("Null values are present in the dataset")
       }
     })
+    var count = 0
+    var errorList = List[Row]()
+    inputDF.collect().foreach(row =>
+      row.toSeq.foreach(c => {
+        if(c == "unknown" || c == -1){
+          count = count+1
+        }
+        if(count > 8){
+          errorList = errorList :+ row
+        }
+      })
+    )
+    val errorDF = spark.createDataFrame(errorList, errorSchema)
+    errorDF.show()
   }
 
   //duplicates check

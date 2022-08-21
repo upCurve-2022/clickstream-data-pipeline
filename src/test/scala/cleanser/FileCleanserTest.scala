@@ -129,7 +129,7 @@ class FileCleanserTest extends AnyFlatSpec {
       "is_order_placed")
 
 
-    val modifiedDF3=cleanser.FileCleanser.fillCurrentTime(inputDF3,Seq("event_timestamp"))
+    val modifiedDF3=cleanser.FileCleanser.fillCurrentTime(inputDF3)
 
     val expectedData=Seq(
       Row("30334","2020-11-15 15:27:01","android","B000078","I7099","B29093","Youtube","FALSE","FALSE"),
