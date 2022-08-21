@@ -1,15 +1,16 @@
 package service
 
 import org.scalatest.flatspec.AnyFlatSpec
+import service.FileWriter.{decryptPassword, fileWriter}
 
 class FileWriterTest extends AnyFlatSpec{
 
-  "Encrypt Password" should "take the password and encrypted it" in {
+  implicit val spark = utils.ApplicationUtils.createSparkSession()
 
-  }
-
-  "File Writer" should "take a dataframe and store it as a table in a database " in {
-
+  "file writer " should "write a dataframe to a table " in {
+    val inputDF= service.FileReader.fileReader("data/clickstream_log.csv", "csv")
+    val tablename = "unittest"
+    service.FileWriter. fileWriter(tablename, inputDF)
   }
 
 }

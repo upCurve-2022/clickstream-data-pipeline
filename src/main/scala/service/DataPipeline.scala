@@ -8,9 +8,11 @@ import constants.ApplicationConstants._
 import org.apache.log4j.Logger
 import org.apache.spark.sql.SparkSession
 import service.FileReader.fileReader
-import service.FileWriter.{encryptPassword, writeToOutputPath}
+import service.FileWriter.{encryptPassword, fileWriter, writeToOutputPath}
 import transform.JoinDatasets.joinDataFrame
 import utils.ApplicationUtils.{configuration, createSparkSession}
+
+import java.nio.file.{Files, Paths}
 
 object DataPipeline {
   implicit val spark: SparkSession = createSparkSession()
@@ -102,9 +104,11 @@ object DataPipeline {
 
     //final df to be inserted - write into table
     //demo table
-    //run to encrypt password, only needed to be done once.
-    encryptPassword()
-    //fileWriter("table2", itemDFWithoutDuplicates)
+    if(!Files.exists(Paths.get(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD))){
+      encryptPassword(constants.ApplicationConstants.DATABASE_PASSWORD)
+    }
+
+    fileWriter("table_try_3", transformJoinedDF)
 
   }
 }

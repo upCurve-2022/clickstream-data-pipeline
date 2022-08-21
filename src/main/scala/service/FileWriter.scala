@@ -22,9 +22,9 @@ object FileWriter {
     }
   }
 
-  def encryptPassword():Unit={
+  def encryptPassword(passwordPath:String):Unit={
     //read from file and encrypt the actual password
-    val password = Source.fromFile("data/actual_password.txt").getLines.mkString
+    val password = Source.fromFile(passwordPath).getLines.mkString
     val actualPasswordInBytes = password.getBytes(StandardCharsets.UTF_8)
     val encryptedPassword = Base64.getEncoder.encodeToString(actualPasswordInBytes)
 
@@ -34,9 +34,9 @@ object FileWriter {
     writer.close()
   }
 
-  def decryptPassword():String={
+  def decryptPassword(encryptedPasswordPath:String):String={
     //read from file and decrypt password
-    val decryptedPassword = Source.fromFile("data/encrypted_password.txt").getLines.mkString
+    val decryptedPassword = Source.fromFile(encryptedPasswordPath).getLines.mkString
     val decoded = Base64.getDecoder.decode(decryptedPassword)
 
     //return the decrypted password as a string
@@ -46,7 +46,7 @@ object FileWriter {
 
   def fileWriter(tablename: String, df: DataFrame): Unit = {
     val DBURL = "jdbc:mysql://localhost:3306/target_project" //change in conf
-    val password = decryptPassword()
+    val password = decryptPassword(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD)
     try {
         df.write.format("jdbc")
           .option("url", DBURL)

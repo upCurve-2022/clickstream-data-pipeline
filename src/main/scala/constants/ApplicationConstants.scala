@@ -69,4 +69,7 @@ object ApplicationConstants {
   val DEFAULT_STRING_NULL = "unknown"
   val DEFAULT_NUMERIC_NULL = (-1)
 
+  val DATABASE_PASSWORD: String = "data/actual_password.txt"
+  val ENCRYPTED_DATABASE_PASSWORD: String = "data/encrypted_password.txt"
+
 }
