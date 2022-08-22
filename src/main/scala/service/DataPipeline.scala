@@ -1,6 +1,6 @@
 package service
 
-import checks.DataQualityChecks.{duplicatesCheck, nullCheck, schemaValidationCheck}
+import checks.DataQualityChecks.{nullCheck, schemaValidationCheck}
 import cleanser.FileCleanser._
 import com.typesafe.config.Config
 import constants.ApplicationConstants._
@@ -64,12 +64,12 @@ object DataPipeline {
   }
 
   def execute(): Unit = {
-    val clickStreamDFWithoutDuplicates = initialSteps(clickStreamInputPath, FILE_FORMAT, Some(TIME_STAMP_COL))
+    val clickStreamDFDeDuplicates = initialSteps(clickStreamInputPath, FILE_FORMAT, Some(TIME_STAMP_COL))
 
-    val itemDFWithoutDuplicates = initialSteps(itemDataInputPath, FILE_FORMAT, None)
+    val itemDFDeDuplicates = initialSteps(itemDataInputPath, FILE_FORMAT, None)
 
     //  joining two datasets
-    val joinedDataframe = joinDataFrame(clickStreamDFWithoutDuplicates, itemDFWithoutDuplicates, join_key, join_type)
+    val joinedDataframe = joinDataFrame(clickStreamDFDeDuplicates, itemDFDeDuplicates, join_key, join_type)
 
     val nullHandledJoinTable = fillValues(joinedDataframe,COLUMN_NAME_DEFAULT_VALUE_ITEM_DATA_MAP)
 
