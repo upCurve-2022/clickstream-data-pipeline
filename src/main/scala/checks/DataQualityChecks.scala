@@ -42,8 +42,6 @@ object DataQualityChecks {
 //        throw NullValuesExistException("Null values are present in the dataset")
 //      }
 //    })
-    var count = 0
-    var errorList = List[Row]()
     inputDF.collect().foreach(row => {
       row.toSeq.foreach(c => {
         if (c == "UNKNOWN" || c == -1 || c == false) {
