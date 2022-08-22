@@ -107,13 +107,9 @@ object DataPipeline {
   if (!Files.exists(Paths.get(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD))) {
      //      encryptPassword(constants.ApplicationConstants.DATABASE_PASSWORD)
    }
+    // fileWriter("table_try_3", transformJoinedDF)
 
-    //    fileWriter("table_try_3", transformJoinedDF)
-//    rowEliminatedClickStreamDF.printSchema()
 //    transformJoinedDF.printSchema()
-   timeFilledDF.show(10)
-    timeFilledDF.printSchema()
-    transformJoinedDF.printSchema()
 
 
   }
