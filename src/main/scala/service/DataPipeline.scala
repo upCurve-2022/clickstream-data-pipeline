@@ -94,9 +94,7 @@ object DataPipeline {
     val transformJoinedDF = transform.JoinDatasets.transformDataFrame(nullHandledJoinTable)
     transformJoinedDF.show()
 
-    //testing
-    val df = transformJoinedDF.filter(transformJoinedDF.col("department_name") === "unknown" && transformJoinedDF.col("product_type") === "unknown" && transformJoinedDF.col("vendor_id") === (-1) &&
-      transformJoinedDF.col("item_price") === (-1))
+
 
 
     //writing the resultant data of item dataset to a file
