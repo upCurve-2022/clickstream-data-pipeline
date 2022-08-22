@@ -24,8 +24,7 @@ object FileCleanser {
   }
 
   //Handling null values -filling null value with the current timestamp
-  def fillCurrentTime(inputDF: DataFrame, cols: Seq[String]): DataFrame = {
-    cols.foreach { (element: String) => check(inputDF, element) }
+  def fillCurrentTime(inputDF: DataFrame): DataFrame = {
     val currentTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now())
     val fillTimeDF = inputDF.withColumn("event_timestamp", coalesce(col("event_timestamp"), lit(currentTime)))
 

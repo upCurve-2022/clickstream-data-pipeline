@@ -37,7 +37,7 @@ object DataPipeline {
     //eliminate rows on NOT_NULL_COLUMNS
     val rowEliminatedClickStreamDF = removeRows(changeDataTypeDF, constants.ApplicationConstants.CLICK_STREAM_NOT_NULL_KEYS)
     // fill time stamp
-    val timeFilledDF = cleanser.FileCleanser.fillCurrentTime(rowEliminatedClickStreamDF, constants.ApplicationConstants.CLICK_STREAM_TIMESTAMP)
+    val timeFilledDF =fillCurrentTime(rowEliminatedClickStreamDF)
     // fill null values
     val nullFilledClickSteamDF = fillValues(timeFilledDF, constants.ApplicationConstants.COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP)
 
