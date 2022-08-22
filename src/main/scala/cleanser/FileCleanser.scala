@@ -1,10 +1,9 @@
 package cleanser
 
-import utils.ApplicationUtils.check
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types.TimestampType
+import utils.ApplicationUtils.check
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -28,7 +27,7 @@ object FileCleanser {
   def fillCurrentTime(inputDF: DataFrame, cols: Seq[String]): DataFrame = {
     cols.foreach { (element: String) => check(inputDF, element) }
     val currentTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now())
-    val fillTimeDF = inputDF.withColumn("event_timestamp", coalesce(col("event_timestamp"), lit(currentTime).cast(TimestampType)))
+    val fillTimeDF = inputDF.withColumn("event_timestamp", coalesce(col("event_timestamp"), lit(currentTime)))
 
     fillTimeDF
   }

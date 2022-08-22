@@ -111,7 +111,10 @@ object DataPipeline {
     //    fileWriter("table_try_3", transformJoinedDF)
 //    rowEliminatedClickStreamDF.printSchema()
 //    transformJoinedDF.printSchema()
-//    timeFilledDF.show(10)
+   timeFilledDF.show(10)
+    timeFilledDF.printSchema()
+    transformJoinedDF.printSchema()
+
 
   }
 }
