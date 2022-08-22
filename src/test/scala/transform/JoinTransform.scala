@@ -1,4 +1,4 @@
-package join
+package transform
 
 import constants.ApplicationConstants.join_type
 import org.apache.spark.sql.types._
@@ -14,10 +14,10 @@ class JoinTransform extends AnyFlatSpec {
 
   "joinDataFrame method()" should "do left join on two data set"  in {
     val clickstreamDF = Seq((
-      30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "B741", "facebook", true, true),
-      (30542, Timestamp.valueOf("2020-01-20 15:00:00"), "android", "B000078", "I7099", "D8142", "google", true, true),
-      (13931, Timestamp.valueOf("2020-11-15 09:07:00"), "android", "B000092", "C2146", "H1406", "facebook", false, false),
-      (13931, Timestamp.valueOf("2020-11-15 19:07:00"), "android", "unknown", "C2146", "G6601", "facebook", false, false)
+      30503, "2020-11-15 15:27:00", "android", "B000078", "I7099", "B741", "facebook", true, true),
+      (30542, "2020-01-20 15:00:00", "android", "B000078", "I7099", "D8142", "google", true, true),
+      (13931, "2020-11-15 09:07:00", "android", "B000092", "C2146", "H1406", "facebook", false, false),
+      (13931, "2020-11-15 19:07:00", "android", "unknown", "C2146", "G6601", "facebook", false, false)
     ).toDF(
       "id",
       "event_timestamp",
@@ -67,8 +67,6 @@ class JoinTransform extends AnyFlatSpec {
     val outputDf: DataFrame = transform.JoinDatasets.joinDataFrame(clickstreamDF, itemDF, constants.ApplicationConstants.join_key, join_type)
     df.show()
     outputDf.show()
-    outputDf.printSchema()
-
 
 
     val result = df.except(outputDf)
@@ -78,4 +76,4 @@ class JoinTransform extends AnyFlatSpec {
 
   }
 
-  }
+}

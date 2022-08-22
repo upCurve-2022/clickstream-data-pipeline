@@ -11,17 +11,9 @@ object ClickStream {
       execute()
 
     } catch {
-      case ex: FileReaderException => log.error("File Reader Exception: " + ex.message)
+      case ex: Exception => ex.printStackTrace()
         exit(1)
-      case ex: DataframeIsEmptyException => log.error("DataFrameIsEmptyException:" + ex.message)
-        exit(1)
-      case ex: ColumnNotFoundException => log.error("ColumnNotFoundException:" + ex.message)
-        exit(1)
-      case ex: FileWriterException => log.error("FileWriterException:" + ex.message)
-
     }
-
-
   }
 
 }
