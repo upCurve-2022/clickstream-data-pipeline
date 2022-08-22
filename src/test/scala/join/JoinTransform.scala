@@ -67,6 +67,8 @@ class JoinTransform extends AnyFlatSpec {
     val outputDf: DataFrame = transform.JoinDatasets.joinDataFrame(clickstreamDF, itemDF, constants.ApplicationConstants.join_key, join_type)
     df.show()
     outputDf.show()
+    outputDf.printSchema()
+
 
 
     val result = df.except(outputDf)

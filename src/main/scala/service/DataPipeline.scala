@@ -8,8 +8,11 @@ import constants.ApplicationConstants._
 import org.apache.log4j.Logger
 import org.apache.spark.sql.SparkSession
 import service.FileReader.fileReader
+import service.FileWriter.writeToOutputPath
 import transform.JoinDatasets.joinDataFrame
 import utils.ApplicationUtils.{configuration, createSparkSession}
+
+import java.nio.file.{Files, Paths}
 
 object DataPipeline {
   implicit val spark: SparkSession = createSparkSession()
@@ -75,9 +78,9 @@ object DataPipeline {
     val itemDFWithoutDuplicates = removeDuplicates(nullFilledItemF, ApplicationConstants.ITEM_PRIMARY_KEYS, None)
 
     //performing data quality checks on item dataset
-    //    nullCheck(itemDFWithoutDuplicates, itemMandatoryCol)
-    //    schemaValidationCheck(itemDFWithoutDuplicates)
-    //    duplicatesCheck(itemDFWithoutDuplicates, ApplicationConstants.ITEM_PRIMARY_KEYS, None)
+        nullCheck(itemDFWithoutDuplicates, itemMandatoryCol)
+        schemaValidationCheck(itemDFWithoutDuplicates)
+        duplicatesCheck(itemDFWithoutDuplicates, ApplicationConstants.ITEM_PRIMARY_KEYS, None)
 
     //logging information about item dataset
     log.warn("Total items in the item dataset " + itemDFWithoutDuplicates.count())
@@ -85,7 +88,7 @@ object DataPipeline {
     //  joining two datasets
     val joinedDataframe = joinDataFrame(clickStreamDFWithoutDuplicates, itemDFWithoutDuplicates, join_key, join_type)
 
-    val nullHandledJoinTable = fillValues(joinedDataframe, itemDataNullFillValues)
+    val nullHandledJoinTable = fillValues(joinedDataframe,COLUMN_NAME_DEFAULT_VALUE_ITEM_DATA_MAP)
 
     // transform
     val transformJoinedDF = transform.JoinDatasets.transformDataFrame(nullHandledJoinTable)
@@ -97,13 +100,13 @@ object DataPipeline {
 
 
     //writing the resultant data of item dataset to a file
-    //writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
+    writeToOutputPath(itemDFWithoutDuplicates, itemDataOutputPath, ApplicationConstants.FILE_FORMAT)
 
     //final df to be inserted - write into table
     //demo table
-//   if (!Files.exists(Paths.get(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD))) {
-////      //      encryptPassword(constants.ApplicationConstants.DATABASE_PASSWORD)
-////    }
+  if (!Files.exists(Paths.get(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD))) {
+     //      encryptPassword(constants.ApplicationConstants.DATABASE_PASSWORD)
+   }
 
     //    fileWriter("table_try_3", transformJoinedDF)
 //    rowEliminatedClickStreamDF.printSchema()
