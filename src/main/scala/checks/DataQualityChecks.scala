@@ -47,7 +47,7 @@ object DataQualityChecks {
 //    })
     inputDF.collect().foreach(row => {
       row.toSeq.foreach(c => {
-        if (c == "UNKNOWN" || c == -1 || c == false) {
+        if (c == "UNKNOWN" || c == -1 || c == false || c == "null" || c =="NULL" || c == "") {
           count = count + 1
         }
       })
