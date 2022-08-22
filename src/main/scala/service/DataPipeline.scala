@@ -1,6 +1,6 @@
 package service
 
-import checks.DataQualityChecks.{nullCheck, schemaValidationCheck}
+import checks.DataQualityChecks.{duplicatesCheck, nullCheck, schemaValidationCheck}
 import cleanser.FileCleanser._
 import com.typesafe.config.Config
 import constants.ApplicationConstants._
@@ -81,14 +81,14 @@ object DataPipeline {
 
     nullCheck(transformJoinedDF, FINAL_TABLE_COL)
     schemaValidationCheck(transformJoinedDF)
-    //duplicatesCheck(transformJoinedDF, primaryKeys)
+    val duplicateCheckFinalDF = duplicatesCheck(transformJoinedDF, CLICK_STREAM_PRIMARY_KEYS, TIME_STAMP_COL)
 
     //final df to be inserted - write into table
     //demo table
     if (!Files.exists(Paths.get(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD))) {
            encryptPassword(constants.ApplicationConstants.DATABASE_PASSWORD)
     }
-    fileWriter("table_try_3", transformJoinedDF)
+    fileWriter("table_try_3", duplicateCheckFinalDF)
     transformJoinedDF.printSchema()
 
 
