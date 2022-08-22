@@ -64,7 +64,6 @@ object DataPipeline {
 
   def execute(): Unit = {
     val clickStreamDFDeDuplicates = initialSteps(clickStreamInputPath, FILE_FORMAT, Some(TIME_STAMP_COL))
-
     val itemDFDeDuplicates = initialSteps(itemDataInputPath, FILE_FORMAT, None)
 
     //  joining two datasets
