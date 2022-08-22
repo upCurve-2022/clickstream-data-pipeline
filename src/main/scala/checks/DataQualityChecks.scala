@@ -25,33 +25,37 @@ object DataQualityChecks {
     StructField("is_add_to_cart", BooleanType,nullable = true),
     StructField("is_order_placed", BooleanType,nullable = true),
     StructField("item_price",DoubleType,nullable = true),
-    StructField( "product_type",StringType,nullable = true),
+    StructField("product_type",StringType,nullable = true),
     StructField("department_name",StringType,nullable = true),
-    StructField( "vendor_id", IntegerType,nullable = true),
-    StructField("vendor_name",StringType,nullable = true)))
+    StructField("vendor_id", IntegerType,nullable = true),
+    StructField("vendor_name",StringType,nullable = true),
+    StructField("event_d",DateType,nullable = true),
+    StructField("record_load_ts",TimestampType,nullable = true)))
 
   //nulls
   def nullCheck(inputDF: DataFrame, columns: List[String]): Unit = {
-    columns.foreach(c => {
-      if(inputDF.filter(inputDF(c).isNull
-        || inputDF(c) === ""
-        || inputDF(c).contains("NULL")
-        || inputDF(c).contains("null")).count() != 0){
-        throw NullValuesExistException("Null values are present in the dataset")
-      }
-    })
+//    columns.foreach(c => {
+//      if(inputDF.filter(inputDF(c).isNull
+//        || inputDF(c) === ""
+//        || inputDF(c).contains("NULL")
+//        || inputDF(c).contains("null")).count() != 0){
+//        throw NullValuesExistException("Null values are present in the dataset")
+//      }
+//    })
     var count = 0
     var errorList = List[Row]()
-    inputDF.collect().foreach(row =>
+    inputDF.collect().foreach(row => {
       row.toSeq.foreach(c => {
-        if(c == "unknown" || c == -1){
-          count = count+1
-        }
-        if(count > 8){
-          errorList = errorList :+ row
+        if (c == "UNKNOWN" || c == -1 || c == false) {
+          count = count + 1
         }
       })
-    )
+      if (count > 8) {
+        errorList = errorList :+ row
+      }
+      count = 0
+    })
+
     val errorDF = spark.createDataFrame(errorList, errorSchema)
     errorDF.show()
   }

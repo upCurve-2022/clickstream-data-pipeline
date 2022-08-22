@@ -71,30 +71,26 @@ object DataPipeline {
     //  joining two datasets
     val joinedDataframe = joinDataFrame(clickStreamDFWithoutDuplicates, itemDFWithoutDuplicates, join_key, join_type)
 
-    val nullHandledJoinTable=fillValues(joinedDataframe,itemDataNullFillValues)
+    val nullHandledJoinTable = fillValues(joinedDataframe,COLUMN_NAME_DEFAULT_VALUE_ITEM_DATA_MAP)
 
     // transform
     val transformJoinedDF = transform.JoinDatasets.transformDataFrame(nullHandledJoinTable)
     transformJoinedDF.show()
 
-    //testing
-    val df = transformJoinedDF.filter(transformJoinedDF.col("department_name") === "unknown" && transformJoinedDF.col("product_type") === "unknown" && transformJoinedDF.col("vendor_id") === (-1) &&
-      transformJoinedDF.col("item_price") === (-1))
-    transformJoinedDF.printSchema()
-
     //performing data quality checks on click stream dataset
-    val mandatoryCol = CLICK_STREAM_DATATYPE.map(x => x._1) ++ ITEM_DATATYPE.map((x => x._1))
-    nullCheck(transformJoinedDF, mandatoryCol)
+
+    nullCheck(transformJoinedDF, FINAL_TABLE_COL)
     schemaValidationCheck(transformJoinedDF)
     //duplicatesCheck(transformJoinedDF, primaryKeys)
 
     //final df to be inserted - write into table
     //demo table
-    if(!Files.exists(Paths.get(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD))){
-      encryptPassword(constants.ApplicationConstants.DATABASE_PASSWORD)
+    if (!Files.exists(Paths.get(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD))) {
+           encryptPassword(constants.ApplicationConstants.DATABASE_PASSWORD)
     }
-
     fileWriter("table_try_3", transformJoinedDF)
+    transformJoinedDF.printSchema()
+
 
   }
 }
