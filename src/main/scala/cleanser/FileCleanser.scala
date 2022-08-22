@@ -5,7 +5,6 @@ import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.TimestampType
 import utils.ApplicationUtils.check
-
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -59,6 +58,7 @@ object FileCleanser {
   /** ****************REMOVING DUPLICATES FROM THE DATASET***************** */
   //Handling Duplicates
   def removeDuplicates(df: DataFrame, primaryKeyCols: Seq[String], orderByCol: Option[String] = None): DataFrame = {
+
     orderByCol match {
       case Some(column) =>
         //Remove duplicates from the click stream dataset

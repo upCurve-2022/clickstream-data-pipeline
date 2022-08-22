@@ -80,17 +80,16 @@ object DataPipeline {
     //performing data quality checks on click stream dataset
 
     nullCheck(transformJoinedDF, FINAL_TABLE_COL)
-//    schemaValidationCheck(transformJoinedDF)
-//    //duplicatesCheck(transformJoinedDF, primaryKeys)
-//
-//    //final df to be inserted - write into table
-//    //demo table
-//  if (!Files.exists(Paths.get(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD))) {
-//           encryptPassword(constants.ApplicationConstants.DATABASE_PASSWORD)
-//   }
-//    //fileWriter("table_try_3", transformJoinedDF)
-//
-//    transformJoinedDF.printSchema()
+    schemaValidationCheck(transformJoinedDF)
+    //duplicatesCheck(transformJoinedDF, primaryKeys)
+
+    //final df to be inserted - write into table
+    //demo table
+    if (!Files.exists(Paths.get(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD))) {
+           encryptPassword(constants.ApplicationConstants.DATABASE_PASSWORD)
+    }
+    fileWriter("table_try_3", transformJoinedDF)
+    transformJoinedDF.printSchema()
 
 
   }

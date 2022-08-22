@@ -26,4 +26,5 @@ object JoinDatasets {
     val newDfJoin = df.withColumn(EVENT_DATE, to_date(df.col(TIME_STAMP_COL), DATE_FORMAT)).withColumn(RECORD_LOAD_TIME, lit(currentTime))
    newDfJoin
   }
+
 }

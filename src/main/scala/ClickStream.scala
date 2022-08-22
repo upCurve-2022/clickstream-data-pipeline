@@ -1,7 +1,8 @@
-import exceptions.Exceptions.{ColumnNotFoundException, DataframeIsEmptyException, FileReaderException, FileWriterException}
+
 import service.DataPipeline.{execute, log}
 
 import scala.sys.exit
+
 
 object ClickStream {
   def main(args: Array[String]): Unit = {
@@ -15,5 +16,4 @@ object ClickStream {
         exit(1)
     }
   }
-
 }

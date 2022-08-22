@@ -55,6 +55,7 @@ object DataQualityChecks {
       }
       count = 0
     })
+
     val errorDF = spark.createDataFrame(errorList, errorSchema)
     errorDF.show()
   }

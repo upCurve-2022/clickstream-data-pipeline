@@ -1,7 +1,5 @@
 package constants
 
-import org.apache.spark.sql.types.{BooleanType, DoubleType, IntegerType, StringType, StructField, TimestampType}
-
 object ApplicationConstants {
   //input path
   val CLICK_STREAM_INPUT_PATH: String = "spark.app.clickStreamInputPath"
@@ -27,7 +25,6 @@ object ApplicationConstants {
   val REDIRECTION_COL = "redirection_source"
   val EVENT_DATE = "event_d"
   val RECORD_LOAD_TIME = "record_load_ts"
-  val TIME_STAMP_COL_SEQ = Seq("event_timestamp")
 
   val FILE_FORMAT = "csv"
 
