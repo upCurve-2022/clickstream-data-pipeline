@@ -1,10 +1,11 @@
 package checks
 
-import exceptions.Exceptions.{DuplicateValuesExistException, NullValuesExistException, SchemaValidationFailedException}
+import exceptions.Exceptions.SchemaValidationFailedException
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{col, desc, row_number}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import service.DataPipeline.databaseURL
 import service.FileWriter
 import utils.ApplicationUtils.createSparkSession
 
@@ -47,7 +48,7 @@ object DataQualityChecks {
 //    })
     inputDF.collect().foreach(row => {
       row.toSeq.foreach(c => {
-        if (c == "UNKNOWN" || c == -1 || c == false || c == "null" || c =="NULL" || c == "") {
+        if (c == "UNKNOWN" || c == -1 || c == false || c == "null" || c == "NULL" || c == "") {
           count = count + 1
         }
       })
@@ -62,14 +63,13 @@ object DataQualityChecks {
   }
 
   //duplicates check
-  def duplicatesCheck(inputDF: DataFrame, primaryKeyCols : Seq[String], orderByCol: String) : DataFrame = {
-
+  def duplicatesCheck(inputDF: DataFrame, primaryKeyCols : Seq[String], orderByCol:String) : DataFrame = {
     val exceptionsDF = inputDF.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col): _*).orderBy(desc(orderByCol))))
       .filter(col("rn") >1).drop("rn")
 
-    errorDF.union(exceptionsDF)
+    errorDF = errorDF.union(exceptionsDF)
     val duplicateCheckFinalDF = inputDF.except(errorDF)
-    FileWriter.fileWriter("error_table", errorDF)
+    FileWriter.fileWriter(databaseURL,"error_table", errorDF)
     duplicateCheckFinalDF
   }
 
