@@ -26,7 +26,7 @@ object DataPipeline {
     val initialDF = fileReader(filePath, fileFormat)
     timeStampCol match {
       case Some(column) =>
-        //modifying column datatypes
+        //modifying column dataTypes
         val timeStampDataTypeDF = stringToTimestamp(initialDF, column, INPUT_TIME_STAMP_FORMAT)
         val changeDataTypeDF=colDatatypeModifier(timeStampDataTypeDF,CLICK_STREAM_DATATYPE)
 
