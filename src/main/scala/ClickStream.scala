@@ -33,7 +33,7 @@ object ClickStream {
         exit(1)
       case ex: FileWriterException => log.error("FileWriterException:" + ex.message)
         exit(1)
-      case ex: DatabaseException => log.error("FileWriterException:" + ex.message)
+      case ex: DatabaseException => log.error("DatabaseException:" + ex.message)
         exit(1)
     }
 //    } catch {
