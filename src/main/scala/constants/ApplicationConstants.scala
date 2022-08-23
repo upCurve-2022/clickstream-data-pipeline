@@ -68,7 +68,6 @@ object ApplicationConstants {
   val join_key: Seq[String] = Seq("item_id")
   val join_type: String = "left"
 
-  val DATABASE_PASSWORD: String = "data/actual_password.txt"
   val ENCRYPTED_DATABASE_PASSWORD: String = "data/encrypted_password.txt"
-
+  val DATABASE_URL: String = "spark.app.databaseURL"
 }
