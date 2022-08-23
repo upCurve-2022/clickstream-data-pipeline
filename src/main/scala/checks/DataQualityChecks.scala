@@ -34,21 +34,12 @@ object DataQualityChecks {
     StructField("event_d",DateType,nullable = true),
     StructField("record_load_ts",TimestampType,nullable = true)))
 
-//  var errorDF = spark.createDataFrame(spark.sparkContext.emptyRDD[Row], errorSchema)
   //nulls
-  def nullCheck(inputDF: DataFrame, columns: List[String]): DataFrame = {
-//    columns.foreach(c => {
-//      if(inputDF.filter(inputDF(c).isNull
-//        || inputDF(c) === ""
-//        || inputDF(c).contains("NULL")
-//        || inputDF(c).contains("null")).count() != 0){
-//        throw NullValuesExistException("Null values are present in the dataset")
-//      }
-//    })
+  def nullCheck(inputDF: DataFrame): DataFrame = {
     var errorList: List[Row] = List[Row]()
     inputDF.collect().foreach(row => {
       row.toSeq.foreach(c => {
-        if (c == "UNKNOWN" || c == -1 || c == false || c == "null" || c == "NULL" || c == "") {
+        if (c == "UNKNOWN" || c == -1 || c == false || c == "null" || c == "NULL" || c == "" || c == null) {
           count = count + 1
         }
       })
@@ -83,7 +74,4 @@ object DataQualityChecks {
       })
     })
   }
-
-  //categorical
-
 }
