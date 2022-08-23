@@ -5,8 +5,10 @@ import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{col, desc, row_number}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import service.DataPipeline.databaseURL
 import service.FileWriter
 import utils.ApplicationUtils.createSparkSession
+
 import scala.collection.JavaConversions._
 
 object DataQualityChecks {
@@ -33,7 +35,7 @@ object DataQualityChecks {
     StructField("event_d",DateType,nullable = true),
     StructField("record_load_ts",TimestampType,nullable = true)))
 
-  var errorDF: DataFrame = spark.createDataFrame(spark.sparkContext.emptyRDD[Row], errorSchema)
+  var errorDF = spark.createDataFrame(spark.sparkContext.emptyRDD[Row], errorSchema)
   //nulls
   def nullCheck(inputDF: DataFrame, columns: List[String]): DataFrame = {
 //    columns.foreach(c => {
@@ -67,7 +69,7 @@ object DataQualityChecks {
 
     errorDF = errorDF.union(exceptionsDF)
     val duplicateCheckFinalDF = inputDF.except(errorDF)
-    FileWriter.fileWriter("error_table", errorDF)
+    FileWriter.fileWriter(databaseURL,"error_table", errorDF)
     duplicateCheckFinalDF
   }
 
