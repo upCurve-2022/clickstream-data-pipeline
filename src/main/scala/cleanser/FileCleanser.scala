@@ -3,8 +3,8 @@ package cleanser
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.TimestampType
 import utils.ApplicationUtils.check
-
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -26,8 +26,7 @@ object FileCleanser {
   //Handling null values -filling null value with the current timestamp
   def fillCurrentTime(inputDF: DataFrame): DataFrame = {
     val currentTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now())
-    val fillTimeDF = inputDF.withColumn("event_timestamp", coalesce(col("event_timestamp"), lit(currentTime)))
-
+    val fillTimeDF = inputDF.withColumn("event_timestamp", coalesce(col("event_timestamp"), lit(currentTime).cast(TimestampType)))
     fillTimeDF
   }
 
@@ -59,6 +58,7 @@ object FileCleanser {
   /** ****************REMOVING DUPLICATES FROM THE DATASET***************** */
   //Handling Duplicates
   def removeDuplicates(df: DataFrame, primaryKeyCols: Seq[String], orderByCol: Option[String] = None): DataFrame = {
+
     orderByCol match {
       case Some(column) =>
         //Remove duplicates from the click stream dataset

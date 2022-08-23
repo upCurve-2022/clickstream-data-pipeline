@@ -1,6 +1,7 @@
 package cleanser
 
-import constants.ApplicationConstants.{COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP, INPUT_TIME_STAMP_FORMAT, REDIRECTION_COL, TIME_STAMP_COL, join_type}
+import constants.ApplicationConstants._
+
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -30,7 +31,8 @@ class FileCleanserTest extends AnyFlatSpec {
       "is_add_to_cart",
       "is_order_placed")
 
-    val modifiedDF=cleanser.FileCleanser.removeRows(inputDF1,constants.ApplicationConstants.CLICK_STREAM_NOT_NULL_KEYS)
+    val modifiedDF=cleanser.FileCleanser.removeRows(inputDF1,CLICK_STREAM_NOT_NULL_KEYS)
+
     modifiedDF.show()
 
     val expectedDF1=Seq(
