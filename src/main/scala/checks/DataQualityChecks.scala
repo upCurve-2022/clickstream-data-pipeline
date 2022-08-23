@@ -1,14 +1,12 @@
 package checks
 
-import exceptions.Exceptions.{DuplicateValuesExistException, NullValuesExistException, SchemaValidationFailedException}
+import exceptions.Exceptions.SchemaValidationFailedException
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{col, desc, row_number}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import service.FileWriter
-import service.FileWriter.fileWriter
 import utils.ApplicationUtils.createSparkSession
-
 import scala.collection.JavaConversions._
 
 object DataQualityChecks {
@@ -35,7 +33,7 @@ object DataQualityChecks {
     StructField("event_d",DateType,nullable = true),
     StructField("record_load_ts",TimestampType,nullable = true)))
 
-  var errorDF = spark.createDataFrame(spark.sparkContext.emptyRDD[Row], errorSchema)
+  var errorDF: DataFrame = spark.createDataFrame(spark.sparkContext.emptyRDD[Row], errorSchema)
   //nulls
   def nullCheck(inputDF: DataFrame, columns: List[String]): DataFrame = {
 //    columns.foreach(c => {
