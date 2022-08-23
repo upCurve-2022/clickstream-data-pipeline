@@ -77,8 +77,8 @@ object DataPipeline {
     transformJoinedDF.show()
 
     //performing data quality checks on click stream dataset
-    val nullCheckFinalDF = nullCheck(transformJoinedDF, FINAL_TABLE_COL)
     schemaValidationCheck(transformJoinedDF)
+    val nullCheckFinalDF = nullCheck(transformJoinedDF)
     val duplicateCheckFinalDF = duplicatesCheck(nullCheckFinalDF, CLICK_STREAM_PRIMARY_KEYS, TIME_STAMP_COL)
 
     //final df to be inserted - write into table

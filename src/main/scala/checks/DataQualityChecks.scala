@@ -36,7 +36,7 @@ object DataQualityChecks {
 
 //  var errorDF = spark.createDataFrame(spark.sparkContext.emptyRDD[Row], errorSchema)
   //nulls
-  def nullCheck(inputDF: DataFrame, columns: List[String]): DataFrame = {
+  def nullCheck(inputDF: DataFrame): DataFrame = {
 //    columns.foreach(c => {
 //      if(inputDF.filter(inputDF(c).isNull
 //        || inputDF(c) === ""
