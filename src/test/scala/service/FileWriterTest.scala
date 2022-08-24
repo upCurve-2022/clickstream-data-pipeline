@@ -6,7 +6,7 @@ import service.FileReader.fileReader
 
 class FileWriterTest extends AnyFlatSpec{
 
-  implicit val spark = utils.ApplicationUtils.createSparkSession()
+  implicit val spark = utils.ApplicationUtils.createSparkSession(None)
 
   "file writer " should "write a dataframe to a table " in {
     val inputDF= fileReader(CLICK_STREAM_TEST_INPUT_PATH,FILE_FORMAT )
