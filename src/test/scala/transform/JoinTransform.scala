@@ -1,4 +1,4 @@
-package join
+package transform
 
 import constants.ApplicationConstants.join_type
 import org.apache.spark.sql.types._
@@ -8,7 +8,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import java.sql.Timestamp
 
 class JoinTransform extends AnyFlatSpec {
-  implicit val spark = utils.ApplicationUtils.createSparkSession()
+  implicit val spark = utils.ApplicationUtils.createSparkSession(None)
 
   import spark.implicits._
 
@@ -76,4 +76,4 @@ class JoinTransform extends AnyFlatSpec {
 
   }
 
-  }
+}

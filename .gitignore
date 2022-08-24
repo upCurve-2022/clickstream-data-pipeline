@@ -22,19 +22,14 @@
 
 /data/output_data/
 
-<<<<<<< HEAD
-=======
 /data/encrypted_password.txt
 
->>>>>>> 3193cfa3108ef36f3dfafd3c133b1b47ed3e2eb8
+/data/actual_password.txt
+
 /.bsp
 
 /metastore_db
 
 /derby.log
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 3193cfa3108ef36f3dfafd3c133b1b47ed3e2eb8
 /null
