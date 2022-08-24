@@ -3,6 +3,7 @@ package service
 import checks.DataQualityChecks.{nullCheck, schemaValidationCheck}
 import cleanser.FileCleanser._
 import com.typesafe.config.Config
+import constants.ApplicationConstants
 import constants.ApplicationConstants._
 import org.apache.log4j.Logger
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -65,6 +66,7 @@ object DataPipeline {
     val itemDataInputPath: String = appConf.getString(ITEM_DATA_INPUT_PATH)
     val clickStreamOutputPath: String = appConf.getString(CLICK_STREAM_OUTPUT_PATH)
     val itemDataOutputPath: String = appConf.getString(ITEM_OUTPUT_PATH)
+    val database_URL=appConf.getString(ApplicationConstants.DATABASE_URL)
     val clickStreamDFDeDuplicates = initialSteps(clickStreamInputPath, FILE_FORMAT, Some(TIME_STAMP_COL))
 
     val itemDFDeDuplicates = initialSteps(itemDataInputPath, FILE_FORMAT, None)
@@ -89,7 +91,7 @@ object DataPipeline {
     if (!Files.exists(Paths.get(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD))) {
       encryptPassword(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD)
     }
-    fileWriter(DATABASE_URL,"table_try_3", transformJoinedDF)
+    fileWriter(database_URL,"table_try_3", transformJoinedDF)
     transformJoinedDF.printSchema()
 
 

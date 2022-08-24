@@ -46,6 +46,7 @@ object FileWriter {
 
   def fileWriter(databaseURL:String,tableName: String, df: DataFrame): Unit = {
     //change in conf
+
     val password = decryptPassword(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD)
     try {
         df.write.format("jdbc")
