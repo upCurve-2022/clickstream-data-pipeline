@@ -47,9 +47,6 @@ object ApplicationConstants {
     ("vendor_id", "int"),
     ("vendor_name", "string"))
 
-//  val FINAL_TABLE_COL = List("item_id", "id", "event_timestamp", "device_type", "session_id", "visitor_id", "redirection_source", "is_add_to_cart",
-//                            "is_order_placed", "item_price", "product_type", "department_name", "vendor_id", "vendor_name", "event_d", "record_load_ts")
-
   //  Join
   val join_key: Seq[String] = Seq("item_id")
   val join_type: String = "left"
