@@ -7,10 +7,12 @@ object Exceptions{
   case class ColumnNotFoundException(message:String) extends Exception(message)
   case class EmptyFilePathException(message:String) extends Exception(message)
   case class FilePathNotFoundException(message:String) extends Exception(message)
+
   case class InvalidInputFormatException(message:String) extends Exception(message)
   case class SchemaValidationFailedException(message : String) extends Exception(message)
   case class NullValuesExistException(message : String) extends Exception(message)
   case class DuplicateValuesExistException(message:String) extends Exception(message)
   case class DatabaseException(message:String) extends Exception(message)
 }
+
 

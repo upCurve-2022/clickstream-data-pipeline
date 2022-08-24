@@ -2,7 +2,6 @@ package service
 
 import org.apache.spark.sql.DataFrame
 
-import java.io.{File, PrintWriter}
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 import scala.io.Source
@@ -22,17 +21,7 @@ object FileWriter {
 //    }
 //  }
 
-  def encryptPassword(passwordPath:String):Unit={
-    //read from file and encrypt the actual password
-    val password = Source.fromFile(passwordPath).getLines.mkString
-    val actualPasswordInBytes = password.getBytes(StandardCharsets.UTF_8)
-    val encryptedPassword = Base64.getEncoder.encodeToString(actualPasswordInBytes)
 
-    //write encrypted password into file
-    val writer = new PrintWriter(new File("data/encrypted_password.txt" ))
-    writer.write(encryptedPassword)
-    writer.close()
-  }
 
   def decryptPassword(encryptedPasswordPath:String):String={
     //read from file and decrypt password
@@ -51,7 +40,7 @@ object FileWriter {
     try {
         df.write.format("jdbc")
           .option("url", databaseURL)
-          .option("driver", "com.mysql.jdbc.Driver")
+          .option("driver", "com.mysql.cj.jdbc.Driver")
           .option("dbtable", tableName)
           .option("user", "root")
           .option("password",password)

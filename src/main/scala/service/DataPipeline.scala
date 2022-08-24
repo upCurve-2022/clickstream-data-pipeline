@@ -1,6 +1,6 @@
 package service
 
-import checks.DataQualityChecks.{nullCheck, schemaValidationCheck}
+import checks.DataQualityChecks.{duplicatesCheck, nullCheck, schemaValidationCheck}
 import cleanser.FileCleanser._
 import com.typesafe.config.Config
 import constants.ApplicationConstants
@@ -8,11 +8,9 @@ import constants.ApplicationConstants._
 import org.apache.log4j.Logger
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import service.FileReader.fileReader
-import service.FileWriter.{encryptPassword, fileWriter}
+import service.FileWriter.fileWriter
 import transform.JoinDatasets.joinDataFrame
 import utils.ApplicationUtils.createSparkSession
-
-import java.nio.file.{Files, Paths}
 
 object DataPipeline {
 
@@ -80,19 +78,14 @@ object DataPipeline {
     val transformJoinedDF = transform.JoinDatasets.transformDataFrame(nullHandledJoinTable)
     transformJoinedDF.show()
 
+
     //performing data quality checks on click stream dataset
-
-    nullCheck(transformJoinedDF)
-    schemaValidationCheck(transformJoinedDF)
-    //duplicatesCheck(transformJoinedDF, primaryKeys)
-
-    //final df to be inserted - write into table
-    //demo table
-    if (!Files.exists(Paths.get(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD))) {
-      encryptPassword(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD)
-    }
-    fileWriter(database_URL,"table_try_3", transformJoinedDF)
-    transformJoinedDF.printSchema()
+      schemaValidationCheck(transformJoinedDF)
+        val nullCheckFinalDF:DataFrame = nullCheck(database_URL,transformJoinedDF)
+        val duplicateCheckFinalDF = duplicatesCheck(database_URL,nullCheckFinalDF, CLICK_STREAM_PRIMARY_KEYS, TIME_STAMP_COL)
+    //
+      //final df to be inserted - write into table
+      fileWriter(database_URL, "table_try_6", duplicateCheckFinalDF)
 
 
   }

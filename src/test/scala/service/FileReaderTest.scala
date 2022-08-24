@@ -1,6 +1,6 @@
 package service
 
-import constants.ApplicationConstants.{CLICK_STREAM_TEST_INPUT_PATH, FILE_FORMAT}
+import constants.ApplicationConstants.{ FILE_FORMAT}
 import org.scalatest.flatspec.AnyFlatSpec
 
 class FileReaderTest extends AnyFlatSpec {
@@ -8,7 +8,7 @@ class FileReaderTest extends AnyFlatSpec {
  import spark.implicits._
   "file reader " should "return a return a dataframe with records " in {
 
-    val outputDF = service.FileReader.fileReader(CLICK_STREAM_TEST_INPUT_PATH,FILE_FORMAT )
+    val outputDF = service.FileReader.fileReader(helper.Helper.CLICK_STREAM_TEST_INPUT_PATH,FILE_FORMAT )
     val expectedDF = Seq(
       ("29839", null, "android", "B000078", "I7099", "B17543", "GOOGLE", null, "TRUE"),
       ("30504", "11/15/2020 15:27", "android", "B000078", "I7099", "B19304", "LinkedIn", null, "TRUE"),

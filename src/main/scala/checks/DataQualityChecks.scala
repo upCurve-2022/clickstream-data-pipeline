@@ -1,6 +1,5 @@
 package checks
 
-import constants.ApplicationConstants.DATABASE_URL
 import exceptions.Exceptions.SchemaValidationFailedException
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{col, desc, row_number}
@@ -33,7 +32,7 @@ object DataQualityChecks {
     StructField("record_load_ts",TimestampType,nullable = true)))
 
   //nulls
-  def nullCheck(inputDF: DataFrame)(implicit spark: SparkSession): Unit = {
+  def nullCheck(databaseUrl:String,inputDF: DataFrame)(implicit spark: SparkSession): DataFrame = {
 //    columns.foreach(c => {
 //      if(inputDF.filter(inputDF(c).isNull
 //        || inputDF(c) === ""
@@ -56,7 +55,7 @@ var errorList: List[Row] = List[Row]()
     })
 
     val errorDF = spark.createDataFrame(errorList, errorSchema)
-    FileWriter.fileWriter(DATABASE_URL,"error_table_nullCheck", errorDF)
+    FileWriter.fileWriter(databaseUrl,"error_table_nullCheck", errorDF)
     val nullCheckFinalDF = inputDF.except(errorDF)
 
     errorDF.show()
@@ -65,12 +64,12 @@ var errorList: List[Row] = List[Row]()
 
   //duplicates check
 
-  def duplicatesCheck(inputDF: DataFrame, primaryKeyCols : Seq[String], orderByCol:String) : DataFrame = {
+  def duplicatesCheck(databaseUrl:String ,inputDF: DataFrame, primaryKeyCols : Seq[String], orderByCol:String) : DataFrame = {
     val exceptionsDF = inputDF.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col): _*).orderBy(desc(orderByCol))))
       .filter(col("rn") >1).drop("rn")
 
     val duplicateCheckFinalDF = inputDF.except(exceptionsDF)
-    FileWriter.fileWriter(DATABASE_URL,"error_table_duplicateCheck", exceptionsDF)
+    FileWriter.fileWriter(databaseUrl,"error_table_duplicateCheck", exceptionsDF)
     duplicateCheckFinalDF
   }
 
