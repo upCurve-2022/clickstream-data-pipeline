@@ -47,14 +47,13 @@ class DataQualityTest extends AnyFlatSpec{
       Row("G6601", 13931, Timestamp.valueOf("2020-11-15 19:07:00"), "android", "unknown", "C2146", "facebook", false, false, (92.5), "I116", "Clothing & Accessories", (1), "KOROL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00"))
     )
     val expectedOutputDF: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(expectedSampleDF), StructType(joinedTableSchema))
-//
-//    outputDF.show()
-//    expectedOutputDF.show()
-//
-//    val resultDF = outputDF.except(expectedOutputDF)
-//    val resultCount = resultDF.count()
-//    val count = 0
-//    assertResult(count)(resultCount)
+
+    outputDF.show()
+    expectedOutputDF.show()
+    val resultDF = outputDF.except(expectedOutputDF)
+    val resultCount = resultDF.count()
+    val count = 0
+    assertResult(count)(resultCount)
   }
 
   //test cases for data quality check - duplicate removal
