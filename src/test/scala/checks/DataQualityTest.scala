@@ -1,5 +1,6 @@
 package checks
 
+import checks.DataQualityChecks.nullCheck
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -38,7 +39,7 @@ class DataQualityTest extends AnyFlatSpec{
     )
     val inputDF: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(sampleDF), StructType(joinedTableSchema))
 
-//    val outputDF = nullCheck(inputDF,F)
+  val outputDF = nullCheck(inputDF)
 
     val expectedSampleDF = Seq(
       Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook", true, true, (192.2), "B003", "Furniture", (4), "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),

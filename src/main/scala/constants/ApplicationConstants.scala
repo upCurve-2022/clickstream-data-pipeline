@@ -71,5 +71,5 @@ object ApplicationConstants {
 
   val DATABASE_PASSWORD: String = "data/actual_password.txt"
   val ENCRYPTED_DATABASE_PASSWORD: String = "data/encrypted_password.txt"
-
+  val DATABASE_URL: String = "spark.app.databaseURL"
 }

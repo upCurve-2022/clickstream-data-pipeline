@@ -80,7 +80,7 @@ object DataPipeline {
 
     //performing data quality checks on click stream dataset
 
-    nullCheck(transformJoinedDF, FINAL_TABLE_COL)
+    nullCheck(transformJoinedDF)
     schemaValidationCheck(transformJoinedDF)
     //duplicatesCheck(transformJoinedDF, primaryKeys)
 
@@ -89,7 +89,7 @@ object DataPipeline {
     if (!Files.exists(Paths.get(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD))) {
       encryptPassword(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD)
     }
-    fileWriter("table_try_3", transformJoinedDF)
+    fileWriter(DATABASE_URL,"table_try_3", transformJoinedDF)
     transformJoinedDF.printSchema()
 
 

@@ -44,14 +44,14 @@ object FileWriter {
     password
   }
 
-  def fileWriter(tablename: String, df: DataFrame): Unit = {
-    val DBURL = "jdbc:mysql://localhost:3306/target_project" //change in conf
+  def fileWriter(databaseURL:String,tableName: String, df: DataFrame): Unit = {
+    //change in conf
     val password = decryptPassword(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD)
     try {
         df.write.format("jdbc")
-          .option("url", DBURL)
+          .option("url", databaseURL)
           .option("driver", "com.mysql.jdbc.Driver")
-          .option("dbtable", tablename)
+          .option("dbtable", tableName)
           .option("user", "root")
           .option("password",password)
           .mode("overwrite")
