@@ -12,10 +12,10 @@ class FileReaderTest extends AnyFlatSpec{
     val outputDF = service.FileReader.fileReader(inputPath, inputType)
 
     val expectedOutputDF = Seq(
-      ("29839","11/15/2020 15:11","android","B000078","I7099","B17543","GOOGLE","null","TRUE"),
-      ("30504","11/15/2020 15:27","android","B000078","I7099","B19304","LinkedIn","null","TRUE"),
-      ("30334","11/15/2020 15:23","android","B000078","I7099","B29093","Youtube","null","null"),
-      ("30385","11/15/2020 15:24","android","B000078","I7099","D8142","google","TRUE","null")
+      ("29839","11/15/2020 15:11","android","B000078","I7099","B17543","GOOGLE",null,"TRUE"),
+      ("30504","11/15/2020 15:27","android","B000078","I7099","B19304","LinkedIn",null,"TRUE"),
+      ("30334","11/15/2020 15:23","android","B000078","I7099","B29093","Youtube",null,null),
+      ("30385","11/15/2020 15:24","android","B000078","I7099","D8142","google","TRUE",null)
     ).toDF("id",
       "event_timestamp",
       "device_type",
@@ -30,9 +30,6 @@ class FileReaderTest extends AnyFlatSpec{
     val ans=result.count()
     val count=0
     assertResult(count)(ans)
-    outputDF.show()
-    expectedOutputDF.show()
+
   }
-
 }
-

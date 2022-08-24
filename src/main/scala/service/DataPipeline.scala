@@ -64,7 +64,6 @@ object DataPipeline {
 
   def execute(): Unit = {
     val clickStreamDFDeDuplicates = initialSteps(clickStreamInputPath, FILE_FORMAT, Some(TIME_STAMP_COL))
-
     val itemDFDeDuplicates = initialSteps(itemDataInputPath, FILE_FORMAT, None)
 
     //  joining two datasets
@@ -77,12 +76,12 @@ object DataPipeline {
     transformJoinedDF.show()
 
     //performing data quality checks on click stream dataset
-//    schemaValidationCheck(transformJoinedDF)
-//    val nullCheckFinalDF = nullCheck(transformJoinedDF)
-//    val duplicateCheckFinalDF = duplicatesCheck(nullCheckFinalDF, CLICK_STREAM_PRIMARY_KEYS, TIME_STAMP_COL)
-//
-//    //final df to be inserted - write into table
-//    fileWriter(databaseURL, "table_try_6", duplicateCheckFinalDF)
+    schemaValidationCheck(transformJoinedDF)
+    val nullCheckFinalDF = nullCheck(transformJoinedDF)
+    val duplicateCheckFinalDF = duplicatesCheck(nullCheckFinalDF, CLICK_STREAM_PRIMARY_KEYS, TIME_STAMP_COL)
+
+    //final df to be inserted - write into table
+    fileWriter(databaseURL, "table_try_6", duplicateCheckFinalDF)
 
   }
 }
