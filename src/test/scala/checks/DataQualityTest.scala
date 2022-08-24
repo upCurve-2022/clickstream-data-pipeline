@@ -1,6 +1,6 @@
 package checks
 
-import checks.DataQualityChecks.nullCheck
+import checks.DataQualityChecks.{nullCheck, schemaValidationCheck}
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.types.{BooleanType, DateType, DoubleType, IntegerType, StringType, StructField, StructType, TimestampType}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -10,7 +10,7 @@ import java.sql.Date
 
 class DataQualityTest extends AnyFlatSpec{
   implicit val spark = utils.ApplicationUtils.createSparkSession()
-  //import spark.implicits._
+  import spark.implicits._
 
   "nullCheck " should " remove records having more than 60% of null values" in {
 
@@ -57,5 +57,32 @@ class DataQualityTest extends AnyFlatSpec{
     val count = 0
     assertResult(count)(resultCount)
   }
+
+//  "schemaValidation " should " check if column and records share the same datatype" in {
+//
+//    val inputDF = Seq(
+//      ("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook","true", true, (192.2), "B003", "Furniture", (4), "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
+//      ("H1406", 13931, Timestamp.valueOf("2020-11-15 09:07:00"), "android", "B000092", "C2146", "facebook", "false", false, (1292.5), "C182", "Apps & Games", (3), "MOJO", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
+//      ("G6601", 13931, Timestamp.valueOf("2020-11-15 19:07:00"), "android", "unknown", "C2146", "facebook", "false", false, (92.5), "I116", "Clothing & Accessories", (1), "KOROL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00"))
+//    ).toDF("item_id",
+//    "id",
+//    "event_timestamp",
+//    "device_type",
+//    "session_id",
+//    "visitor_id",
+//    "redirection_source",
+//    "is_add_to_cart",
+//    "is_order_placed",
+//    "item_price",
+//    "product_type",
+//    "department_name",
+//    "vendor_id",
+//    "vendor_name",
+//    "event_d",
+//    "record_load_ts"
+//    )
+//
+//    schemaValidationCheck(inputDF)
+//  }
 
 }
