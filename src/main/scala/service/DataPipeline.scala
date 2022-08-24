@@ -9,20 +9,16 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import service.FileReader.fileReader
 import service.FileWriter.{encryptPassword, fileWriter}
 import transform.JoinDatasets.joinDataFrame
-import utils.ApplicationUtils.{configuration, createSparkSession}
+import utils.ApplicationUtils.createSparkSession
 
 import java.nio.file.{Files, Paths}
 
 object DataPipeline {
-  implicit val spark: SparkSession = createSparkSession()
-  val appConf: Config = configuration()
-  val log: Logger = Logger.getLogger(getClass)
-  val clickStreamInputPath: String = appConf.getString(CLICK_STREAM_INPUT_PATH)
-  val itemDataInputPath: String = appConf.getString(ITEM_DATA_INPUT_PATH)
-  val clickStreamOutputPath: String = appConf.getString(CLICK_STREAM_OUTPUT_PATH)
-  val itemDataOutputPath: String = appConf.getString(ITEM_OUTPUT_PATH)
 
-  def initialSteps(filePath : String, fileFormat : String, timeStampCol: Option[String]): DataFrame = {
+  val log: Logger = Logger.getLogger(getClass)
+
+
+  def initialSteps(filePath : String, fileFormat : String, timeStampCol: Option[String])(implicit sparkSession: SparkSession): DataFrame = {
     val initialDF = fileReader(filePath, fileFormat)
     timeStampCol match {
       case Some(column) =>
@@ -63,7 +59,12 @@ object DataPipeline {
     }
   }
 
-  def execute(): Unit = {
+  def execute(appConf:Config): Unit = {
+    implicit val spark: SparkSession = createSparkSession(Some(appConf))
+    val clickStreamInputPath: String = appConf.getString(CLICK_STREAM_INPUT_PATH)
+    val itemDataInputPath: String = appConf.getString(ITEM_DATA_INPUT_PATH)
+    val clickStreamOutputPath: String = appConf.getString(CLICK_STREAM_OUTPUT_PATH)
+    val itemDataOutputPath: String = appConf.getString(ITEM_OUTPUT_PATH)
     val clickStreamDFDeDuplicates = initialSteps(clickStreamInputPath, FILE_FORMAT, Some(TIME_STAMP_COL))
 
     val itemDFDeDuplicates = initialSteps(itemDataInputPath, FILE_FORMAT, None)

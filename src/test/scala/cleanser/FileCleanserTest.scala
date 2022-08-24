@@ -9,8 +9,9 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+
 class FileCleanserTest extends AnyFlatSpec {
-  implicit val spark = utils.ApplicationUtils.createSparkSession()
+  implicit val spark = utils.ApplicationUtils.createSparkSession(None)
 
   import spark.implicits._
   "removeRows method1" should "remove null rows" in{

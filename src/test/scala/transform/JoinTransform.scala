@@ -8,7 +8,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import java.sql.Timestamp
 
 class JoinTransform extends AnyFlatSpec {
-  implicit val spark = utils.ApplicationUtils.createSparkSession()
+  implicit val spark = utils.ApplicationUtils.createSparkSession(None)
 
   import spark.implicits._
 
