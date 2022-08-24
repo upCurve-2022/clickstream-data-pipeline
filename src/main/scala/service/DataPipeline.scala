@@ -87,7 +87,7 @@ object DataPipeline {
     //final df to be inserted - write into table
     //demo table
     if (!Files.exists(Paths.get(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD))) {
-           encryptPassword(constants.ApplicationConstants.DATABASE_PASSWORD)
+      encryptPassword(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD)
     }
     fileWriter("table_try_3", transformJoinedDF)
     transformJoinedDF.printSchema()
