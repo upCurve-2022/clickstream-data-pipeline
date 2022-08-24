@@ -10,7 +10,6 @@ object ApplicationConstants {
 
   //constants for null values handling
   val CLICK_STREAM_NOT_NULL_KEYS = Seq("visitor_id","item_id")
-
   val COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP=Map("id"->(-1),"device_type"->"UNKNOWN","session_id"->"UNKNOWN","redirection_source"->"UNKNOWN","is_add_to_cart"->false,"is_order_placed"->false)
 
   val ITEM_NOT_NULL_KEYS = Seq("item_id", "vendor_id")
@@ -47,10 +46,6 @@ object ApplicationConstants {
     ("department_name", "string"),
     ("vendor_id", "int"),
     ("vendor_name", "string"))
-
-
-  val FINAL_TABLE_COL = List("item_id", "id", "event_timestamp", "device_type", "session_id", "visitor_id", "redirection_source", "is_add_to_cart",
-                            "is_order_placed", "item_price", "product_type", "department_name", "vendor_id", "vendor_name", "event_d", "record_load_ts")
 
   //  Join
   val join_key: Seq[String] = Seq("item_id")
