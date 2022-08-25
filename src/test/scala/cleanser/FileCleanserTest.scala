@@ -268,27 +268,43 @@ class FileCleanserTest extends AnyFlatSpec {
   }
   //test cases for  removeDuplicates method
   "removeDuplicates" should "remove duplicates to required format" in {
-    val inputDf: DataFrame = Seq(
+    val clickStreamDF: DataFrame = Seq(
       ("29839", "11/15/2020 15:11", "android", "B000078", "I7099", "B17543", "GOOGLE", "", "TRUE"),
       ("30504", "11/15/2020 15:27", "android", "B000078", "I7099", "B19304", "LinkedIn", "", "TRUE"),
       ("30334", "11/15/2020 15:23", "android", "B000078", "I7099", "B29093", "Youtube", "", ""),
       ("30385", "11/15/2020 15:24", "android", "B000078", "I7099", "D8142", "google", "TRUE", ""),
       ("30503", "11/15/2020 15:27", "android", "B000078", "I7099", "D8142", "FACEBOOK", "TRUE", "TRUE")
     ).toDF("id", "event_timestamp", "device_type", "session_id", "visitor_id", "item_id", "redirection_source", "is_add_to_cart", "is_order_placed")
-    val modifiedDF: DataFrame = removeDuplicates(inputDf, CLICK_STREAM_PRIMARY_KEYS, Some(ApplicationConstants.TIME_STAMP_COL))
-    val expectedDF: DataFrame = Seq(
+    val modifiedClickStreamDF: DataFrame = removeDuplicates(clickStreamDF, CLICK_STREAM_PRIMARY_KEYS, Some(ApplicationConstants.TIME_STAMP_COL))
+    val expectedClickStreamDF: DataFrame = Seq(
       ("29839", "11/15/2020 15:11", "android", "B000078", "I7099", "B17543", "GOOGLE", "", "TRUE"),
       ("30504", "11/15/2020 15:27", "android", "B000078", "I7099", "B19304", "LinkedIn", "", "TRUE"),
       ("30334", "11/15/2020 15:23", "android", "B000078", "I7099", "B29093", "Youtube", "", ""),
       ("30503", "11/15/2020 15:27", "android", "B000078", "I7099", "D8142", "FACEBOOK", "TRUE", "TRUE")
     ).toDF("id", "event_timestamp", "device_type", "session_id", "visitor_id", "item_id", "redirection_source", "is_add_to_cart", "is_order_placed")
 
-    val result = modifiedDF.except(expectedDF)
-    val ans = result.count()
-    assertResult(0) {
-      ans
-    }
+    val itemDF : DataFrame = Seq(
+      ("C6880", "2301", "D040", "Computers & Accessories", "3", "MOJO INC"),
+      ("F4939" ,"1756.5" ,"G822" ,"Collectibles", "2", "AMBER PRODUCTS"),
+      ("F4939" ,"1756.5" ,"G822" ,"Collectibles", "2", "AMBER PRODUCTS"),
+      ("E0383", "412.5", "B619", "Apps & Games", "4", "LARVEL SUPPLY"),
+      ("I777", "1177.5", "F264", "Baby", "2", "AMBER PRODUCTS")
+    ).toDF("item_id", "item_price", "product_type", "department_name", "vendor_id", "vendor_name")
+    val modifiedItemDF : DataFrame = removeDuplicates(itemDF, ITEM_PRIMARY_KEYS, None)
+    val expectedItemDF : DataFrame = Seq(
+      ("C6880", "2301", "D040", "Computers & Accessories", "3", "MOJO INC"),
+      ("F4939" ,"1756.5" ,"G822" ,"Collectibles", "2", "AMBER PRODUCTS"),
+      ("E0383", "412.5", "B619", "Apps & Games", "4", "LARVEL SUPPLY"),
+      ("I777", "1177.5", "F264", "Baby", "2", "AMBER PRODUCTS")
+    ).toDF("item_id", "item_price", "product_type", "department_name", "vendor_id", "vendor_name")
 
+    val clickStreamResult = modifiedClickStreamDF.except(expectedClickStreamDF)
+    val clickStreamAns = clickStreamResult.count()
+    assertResult(0)(clickStreamAns)
+
+    val itemResult = modifiedItemDF.except(expectedItemDF)
+    val itemAns = itemResult.count()
+    assertResult(0)(itemAns)
 
   }
 

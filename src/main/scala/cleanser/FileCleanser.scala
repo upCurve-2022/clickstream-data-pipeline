@@ -57,8 +57,8 @@ object FileCleanser {
 
   /** ****************REMOVING DUPLICATES FROM THE DATASET***************** */
   //Handling Duplicates
-  def removeDuplicates(df: DataFrame, primaryKeyCols: Seq[String], orderByCol: Option[String] = None): DataFrame = {
-
+  def removeDuplicates(df: DataFrame, primaryKeyCols: Seq[String], orderByCol: Option[String]): DataFrame = {
+    primaryKeyCols.foreach { (element: String) => check(df, element) }
     orderByCol match {
       case Some(column) =>
         //Remove duplicates from the click stream dataset
