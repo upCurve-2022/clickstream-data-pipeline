@@ -1,5 +1,7 @@
 package cleanser
 
+import cleanser.FileCleanser.removeDuplicates
+import constants.ApplicationConstants
 import constants.ApplicationConstants._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
@@ -271,6 +273,33 @@ class FileCleanserTest extends AnyFlatSpec {
     assertResult(expected = true)(event_timestamp_col)
     assertResult(expected = true)(add_to_cart_col)
     assertResult(expected = true)(is_order_placed_col)
+  }
+
+  //test cases for  removeDuplicates method
+  "removeDuplicates" should "remove duplicates to required format" in {
+    val inputDf: DataFrame = Seq(
+      ("29839", "11/15/2020 15:11", "android", "B000078", "I7099", "B17543", "GOOGLE", "", "TRUE"),
+      ("30504", "11/15/2020 15:27", "android", "B000078", "I7099", "B19304", "LinkedIn", "", "TRUE"),
+      ("30334", "11/15/2020 15:23", "android", "B000078", "I7099", "B29093", "Youtube", "", ""),
+      ("30385", "11/15/2020 15:24", "android", "B000078", "I7099", "D8142", "google", "TRUE", ""),
+      ("30503", "11/15/2020 15:27", "android", "B000078", "I7099", "D8142" ,"FACEBOOK","TRUE","TRUE")
+    ).toDF("id", "event_timestamp", "device_type", "session_id", "visitor_id", "item_id", "redirection_source", "is_add_to_cart", "is_order_placed")
+    val modifiedDF: DataFrame = removeDuplicates(inputDf, CLICK_STREAM_PRIMARY_KEYS, Some(ApplicationConstants.TIME_STAMP_COL))
+    val expectedDF: DataFrame = Seq(
+      ("29839", "11/15/2020 15:11", "android", "B000078", "I7099", "B17543", "GOOGLE", "", "TRUE"),
+      ("30504", "11/15/2020 15:27", "android", "B000078", "I7099", "B19304", "LinkedIn", "", "TRUE"),
+      ("30334", "11/15/2020 15:23", "android", "B000078", "I7099", "B29093", "Youtube", "", ""),
+      ("30503", "11/15/2020 15:27", "android", "B000078", "I7099", "D8142" ,"FACEBOOK","TRUE","TRUE")
+    ).toDF("id", "event_timestamp", "device_type", "session_id", "visitor_id", "item_id", "redirection_source", "is_add_to_cart", "is_order_placed")
+
+    val result = modifiedDF.except(expectedDF)
+    val ans = result.count()
+    assertResult(0)
+    {
+      ans
+    }
+
+    // assert(count==ans)
   }
   //  test cases for joined table
   "joinDataFrame method()" should "do left join on two data set" in {
