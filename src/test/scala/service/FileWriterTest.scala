@@ -1,17 +1,36 @@
 package service
 
-import constants.ApplicationConstants.{ DATABASE_URL, FILE_FORMAT}
+import org.apache.spark.sql.SparkSession
 import org.scalatest.flatspec.AnyFlatSpec
-import service.FileReader.fileReader
+import service.FileWriter.decryptPassword
+
+import java.io.{File, PrintWriter}
 
 class FileWriterTest extends AnyFlatSpec{
 
-  implicit val spark = utils.ApplicationUtils.createSparkSession(None)
+  implicit val spark:SparkSession = helper.Helper.createSparkSession()
+
+  "decrypt password " should "decrypt password from the encrypted password file" in {
+    //create a file with encrypted password "cGFzczEyMw=="
+    val ePassFile = new File("src/test/scala/e_password.txt")
+    val ePass = "src/test/scala/e_password.txt"
+    val writer = new PrintWriter(ePassFile)
+    writer.write("cGFzczEyMw==")
+    writer.close()
+
+    //check if decrypted password matches original
+    val decryptedPassword = decryptPassword(ePass)
+    assert("pass123" == decryptedPassword)
+
+    //delete temp file created for test
+    ePassFile.delete()
+  }
 
   "file writer " should "write a dataframe to a table " in {
-    val inputDF= fileReader(helper.Helper.CLICK_STREAM_TEST_INPUT_PATH,FILE_FORMAT )
-    val tablename = "unittest"
-    service.FileWriter. fileWriter(DATABASE_URL,tablename, inputDF)
+    val inputDF= service.FileReader.fileReader("data/clickstream_log.csv", "csv")
+    val tableName = "unittest"
+    val dbURL = "jdbc:mysql://localhost:3306/target_project"
+    service.FileWriter. fileWriter(dbURL,tableName, inputDF)
   }
 
 }

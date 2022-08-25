@@ -15,32 +15,18 @@ object ApplicationUtils {
 
     appConf
   }
-
-
   //Creating the spark session
-  def createSparkSession(inputAppConf:Option[Config]): SparkSession = {
-    inputAppConf match {
-      case Some(x) =>
-
+  def createSparkSession(inputAppConf:Config): SparkSession = {
         implicit val spark: SparkSession = SparkSession.getActiveSession.getOrElse(
           SparkSession.builder
-            .appName(x.getString("spark.app.name"))
-            .master(x.getString("spark.app.master"))
+            .appName(inputAppConf.getString("spark.app.name"))
+            .master(inputAppConf.getString("spark.app.master"))
             .enableHiveSupport()
             .getOrCreate()
         )
 spark
-      case None =>
-        implicit val spark: SparkSession = SparkSession.getActiveSession.getOrElse(
-          SparkSession.builder
-            .appName("UpCurve Data Pipeline")
-            .master("local[*]")
-            .enableHiveSupport()
-            .getOrCreate()
-        )
-        spark
     }
-  }
+
   //checking for exceptions
   def check(inputDF : DataFrame, colName :String): Unit = {
     if(inputDF.count() == 0) {

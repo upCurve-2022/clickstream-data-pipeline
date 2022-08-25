@@ -59,7 +59,7 @@ object DataPipeline {
   }
 
   def execute(appConf:Config): Unit = {
-    implicit val spark: SparkSession = createSparkSession(Some(appConf))
+    implicit val spark: SparkSession = createSparkSession(appConf)
     val clickStreamInputPath: String = appConf.getString(CLICK_STREAM_INPUT_PATH)
     val itemDataInputPath: String = appConf.getString(ITEM_DATA_INPUT_PATH)
     val clickStreamOutputPath: String = appConf.getString(CLICK_STREAM_OUTPUT_PATH)

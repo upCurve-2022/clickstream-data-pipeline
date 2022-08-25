@@ -1,10 +1,12 @@
 package service
 
-import constants.ApplicationConstants.{ FILE_FORMAT}
+import constants.ApplicationConstants.FILE_FORMAT
+import org.apache.spark.sql.SparkSession
 import org.scalatest.flatspec.AnyFlatSpec
 
 class FileReaderTest extends AnyFlatSpec {
-  implicit val spark = utils.ApplicationUtils.createSparkSession(None);
+
+  implicit val spark:SparkSession = helper.Helper.createSparkSession()
  import spark.implicits._
   "file reader " should "return a return a dataframe with records " in {
 
@@ -25,7 +27,7 @@ class FileReaderTest extends AnyFlatSpec {
 
     val result = expectedDF.except(outputDF)
     val ans = result.count()
-    val count = 0;
+    val count = 0
     assertResult(count)(ans)
   }
 

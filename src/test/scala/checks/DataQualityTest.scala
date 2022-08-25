@@ -2,13 +2,13 @@ package checks
 
 import checks.DataQualityChecks.{duplicatesCheck, nullCheck}
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.scalatest.flatspec.AnyFlatSpec
 
 import java.sql.{Date, Timestamp}
 
 class DataQualityTest extends AnyFlatSpec{
-  implicit val spark = utils.ApplicationUtils.createSparkSession(None)
+  implicit val spark:SparkSession = helper.Helper.createSparkSession()
 
 
   "nullCheck " should " remove records having more than 60% of null values" in {
@@ -32,19 +32,19 @@ class DataQualityTest extends AnyFlatSpec{
       StructField("record_load_ts",TimestampType,nullable = true))
 
     val sampleDF = Seq(
-      Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook", true, true, (192.2), "B003", "Furniture", (4), "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
+      Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook", true, true, 192.2, "B003", "Furniture", 4, "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
       Row("D8142", 30542, Timestamp.valueOf("2020-01-20 15:00:00"), "UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN", false, true, null, null, null, null, null, Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
-      Row("H1406", 13931, Timestamp.valueOf("2020-11-15 09:07:00"), "android", "B000092", "C2146", "facebook", false, false, (1292.5), "C182", "Apps & Games", (3), "MOJO", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
-      Row("G6601", 13931, Timestamp.valueOf("2020-11-15 19:07:00"), "android", "unknown", "C2146", "facebook", false, false, (92.5), "I116", "Clothing & Accessories", (1), "KOROL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00"))
+      Row("H1406", 13931, Timestamp.valueOf("2020-11-15 09:07:00"), "android", "B000092", "C2146", "facebook", false, false, 1292.5, "C182", "Apps & Games", 3, "MOJO", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
+      Row("G6601", 13931, Timestamp.valueOf("2020-11-15 19:07:00"), "android", "unknown", "C2146", "facebook", false, false, 92.5, "I116", "Clothing & Accessories", 1, "KOROL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00"))
     )
     val inputDF: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(sampleDF), StructType(joinedTableSchema))
 
    val outputDF = nullCheck(helper.Helper.DATABASE_URL,inputDF)
 
     val expectedSampleDF = Seq(
-      Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook", true, true, (192.2), "B003", "Furniture", (4), "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
-      Row("H1406", 13931, Timestamp.valueOf("2020-11-15 09:07:00"), "android", "B000092", "C2146", "facebook", false, false, (1292.5), "C182", "Apps & Games", (3), "MOJO", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
-      Row("G6601", 13931, Timestamp.valueOf("2020-11-15 19:07:00"), "android", "unknown", "C2146", "facebook", false, false, (92.5), "I116", "Clothing & Accessories", (1), "KOROL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00"))
+      Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook", true, true, 192.2, "B003", "Furniture", 4, "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
+      Row("H1406", 13931, Timestamp.valueOf("2020-11-15 09:07:00"), "android", "B000092", "C2146", "facebook", false, false, 1292.5, "C182", "Apps & Games", 3, "MOJO", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
+      Row("G6601", 13931, Timestamp.valueOf("2020-11-15 19:07:00"), "android", "unknown", "C2146", "facebook", false, false, 92.5, "I116", "Clothing & Accessories", 1, "KOROL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00"))
     )
     val expectedOutputDF: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(expectedSampleDF), StructType(joinedTableSchema))
 
@@ -77,19 +77,19 @@ class DataQualityTest extends AnyFlatSpec{
       StructField("record_load_ts",TimestampType,nullable = true))
 
     val sampleDF = Seq(
-      Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook", true, true, (192.2), "B003", "Furniture", (4), "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
-      Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:00:00"), "android", "B000078", "I7099", "facebook", true, true, (192.2), "B003", "Furniture", (4), "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
-      Row("H1406", 13931, Timestamp.valueOf("2020-11-15 09:07:00"), "android", "B000092", "C2146", "facebook", false, false, (1292.5), "C182", "Apps & Games", (3), "MOJO", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
-      Row("G6601", 13932, Timestamp.valueOf("2020-11-15 19:07:00"), "android", "A000091", "A2141", "google", false, false, (92.5), "I116", "Clothing & Accessories", (1), "KOROL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00"))
+      Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook", true, true, 192.2, "B003", "Furniture", 4, "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
+      Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:00:00"), "android", "B000078", "I7099", "facebook", true, true, 192.2, "B003", "Furniture", 4, "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
+      Row("H1406", 13931, Timestamp.valueOf("2020-11-15 09:07:00"), "android", "B000092", "C2146", "facebook", false, false, 1292.5, "C182", "Apps & Games", 3, "MOJO", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
+      Row("G6601", 13932, Timestamp.valueOf("2020-11-15 19:07:00"), "android", "A000091", "A2141", "google", false, false, 92.5, "I116", "Clothing & Accessories", 1, "KOROL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00"))
     )
     val inputDF: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(sampleDF), StructType(joinedTableSchema))
 
   val outputDF = duplicatesCheck(helper.Helper.DATABASE_URL,inputDF, constants.ApplicationConstants.CLICK_STREAM_PRIMARY_KEYS, constants.ApplicationConstants.TIME_STAMP_COL)
 
     val expectedSampleDF = Seq(
-      Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook", true, true, (192.2), "B003", "Furniture", (4), "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
-      Row("H1406", 13931, Timestamp.valueOf("2020-11-15 09:07:00"), "android", "B000092", "C2146", "facebook", false, false, (1292.5), "C182", "Apps & Games", (3), "MOJO", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
-      Row("G6601", 13932, Timestamp.valueOf("2020-11-15 19:07:00"), "android", "A000091", "A2141", "google", false, false, (92.5), "I116", "Clothing & Accessories", (1), "KOROL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00"))
+      Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook", true, true, 192.2, "B003", "Furniture", 4, "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
+      Row("H1406", 13931, Timestamp.valueOf("2020-11-15 09:07:00"), "android", "B000092", "C2146", "facebook", false, false, 1292.5, "C182", "Apps & Games", 3, "MOJO", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
+      Row("G6601", 13932, Timestamp.valueOf("2020-11-15 19:07:00"), "android", "A000091", "A2141", "google", false, false, 92.5, "I116", "Clothing & Accessories", 1, "KOROL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00"))
     )
     val expectedOutputDF: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(expectedSampleDF), StructType(joinedTableSchema))
 
