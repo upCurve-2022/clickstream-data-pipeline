@@ -57,13 +57,10 @@ var errorList: List[Row] = List[Row]()
     val errorDF = spark.createDataFrame(errorList, errorSchema)
     FileWriter.fileWriter(databaseUrl,"error_table_nullCheck", errorDF)
     val nullCheckFinalDF = inputDF.except(errorDF)
-
-    errorDF.show()
     nullCheckFinalDF
   }
 
   //duplicates check
-
   def duplicatesCheck(databaseUrl:String ,inputDF: DataFrame, primaryKeyCols : Seq[String], orderByCol:String) : DataFrame = {
     val exceptionsDF = inputDF.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col): _*).orderBy(desc(orderByCol))))
       .filter(col("rn") >1).drop("rn")
@@ -76,8 +73,9 @@ var errorList: List[Row] = List[Row]()
   //schema validation
   def schemaValidationCheck(inputDF : DataFrame): Unit ={
     inputDF.schema.fields.foreach(f=> {
+      val datatype=f.dataType.toString.toLowerCase().split("type")(0)
       inputDF.select(f.name).foreach(c => {
-        if(!c(0).getClass.getName.toLowerCase.contains(f.dataType.toString.toLowerCase().split("type")(0))){
+        if(!c(0).getClass.getName.toLowerCase.contains(datatype)){
           throw SchemaValidationFailedException(c(0) + " does not have the same datatype as its column " + f.name)
         }
       })

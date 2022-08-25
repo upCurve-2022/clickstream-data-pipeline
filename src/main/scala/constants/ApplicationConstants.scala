@@ -16,10 +16,6 @@ object ApplicationConstants {
   val ITEM_NOT_NULL_KEYS = Seq("item_id", "vendor_id")
   val COLUMN_NAME_DEFAULT_VALUE_ITEM_DATA_MAP=Map("item_price"->(-1),"product_type"->"UNKNOWN","department_name"->"UNKNOWN","vendor_id"->(-1),"vendor_name"->"UNKNOWN")
 
-  //output path
-  val CLICK_STREAM_OUTPUT_PATH: String = "spark.app.clickStreamOutputPath"
-  val ITEM_OUTPUT_PATH: String = "spark.app.itemDataOutputPath"
-
   val INPUT_TIME_STAMP_FORMAT = "MM/dd/yyyy HH:mm"
   val DATE_FORMAT = "yyyy-MM-dd"
   val TIME_STAMP_COL = "event_timestamp"

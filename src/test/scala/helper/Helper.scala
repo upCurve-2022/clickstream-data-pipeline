@@ -9,7 +9,7 @@ object Helper {
   def createSparkSession(): SparkSession = {
     implicit val spark: SparkSession = SparkSession.getActiveSession.getOrElse(
       SparkSession.builder
-        .appName("UpCurve Data Pipeline")
+        .appName("UpCurve Data Pipeline Test")
         .master("local[*]")
         .enableHiveSupport()
         .getOrCreate())

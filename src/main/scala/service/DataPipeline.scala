@@ -62,8 +62,6 @@ object DataPipeline {
     implicit val spark: SparkSession = createSparkSession(appConf)
     val clickStreamInputPath: String = appConf.getString(CLICK_STREAM_INPUT_PATH)
     val itemDataInputPath: String = appConf.getString(ITEM_DATA_INPUT_PATH)
-    val clickStreamOutputPath: String = appConf.getString(CLICK_STREAM_OUTPUT_PATH)
-    val itemDataOutputPath: String = appConf.getString(ITEM_OUTPUT_PATH)
     val database_URL=appConf.getString(ApplicationConstants.DATABASE_URL)
     val clickStreamDFDeDuplicates = initialSteps(clickStreamInputPath, FILE_FORMAT, Some(TIME_STAMP_COL))
 
@@ -86,7 +84,8 @@ object DataPipeline {
     //
       //final df to be inserted - write into table
       fileWriter(database_URL, "table_try_6", duplicateCheckFinalDF)
-
+transformJoinedDF.show()
+    transformJoinedDF.printSchema()
 
   }
 }
