@@ -29,7 +29,7 @@ object DataPipeline {
         val rowEliminatedDF = removeRows(changeDataTypeDF,CLICK_STREAM_NOT_NULL_KEYS)
 
         // fill time stamp
-        val timeFilledDF=fillCurrentTime(rowEliminatedDF)
+        val timeFilledDF=fillTime(rowEliminatedDF)
 
         // fill null values
         val nullFilledDF=fillValues(timeFilledDF,COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP)
@@ -76,16 +76,16 @@ object DataPipeline {
     val transformJoinedDF = transform.JoinDatasets.transformDataFrame(nullHandledJoinTable)
     transformJoinedDF.show()
 
-
     //performing data quality checks on click stream dataset
-      schemaValidationCheck(transformJoinedDF)
-        val nullCheckFinalDF:DataFrame = nullCheck(database_URL,transformJoinedDF)
-        val duplicateCheckFinalDF = duplicatesCheck(database_URL,nullCheckFinalDF, CLICK_STREAM_PRIMARY_KEYS, TIME_STAMP_COL)
-    //
-      //final df to be inserted - write into table
-      fileWriter(database_URL, "table_try_6", duplicateCheckFinalDF)
-transformJoinedDF.show()
+    schemaValidationCheck(transformJoinedDF)
+    val nullCheckFinalDF:DataFrame = nullCheck(database_URL,transformJoinedDF)
+    val duplicateCheckFinalDF = duplicatesCheck(database_URL,nullCheckFinalDF, CLICK_STREAM_PRIMARY_KEYS, TIME_STAMP_COL)
+
+    transformJoinedDF.show()
     transformJoinedDF.printSchema()
+
+    //final df to be inserted - write into table
+    fileWriter(database_URL, "clickstream_item_data", duplicateCheckFinalDF)
 
   }
 }

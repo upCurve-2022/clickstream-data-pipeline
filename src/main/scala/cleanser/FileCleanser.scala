@@ -18,15 +18,16 @@ object FileCleanser {
   }
 
   //Handling null values - filling null value with a custom value
+
   def fillValues(df: DataFrame, nullMap: Map[String, Any]): DataFrame = {
     val filledDf: DataFrame = df.na.fill(nullMap)
     filledDf
   }
 
   //Handling null values -filling null value with the current timestamp
-  def fillCurrentTime(inputDF: DataFrame): DataFrame = {
-    val currentTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now())
-    val fillTimeDF = inputDF.withColumn("event_timestamp", coalesce(col("event_timestamp"), lit(currentTime).cast(TimestampType)))
+  def fillTime(inputDF: DataFrame): DataFrame = {
+    val time = "1999-01-01 00:00:00"
+    val fillTimeDF = inputDF.withColumn("event_timestamp", coalesce(col("event_timestamp"), lit(time).cast(TimestampType)))
     fillTimeDF
   }
 
