@@ -1,5 +1,5 @@
-CREATE TABLE `clickstream_data`(
-`event_id` INT NOT NULL,
+CREATE TABLE `final_table`(
+`event_id` INT NOT NULL ,
 `event_timestamp` TIMESTAMP NOT NULL,
 `user_device_type` VARCHAR(10),
 `session_id` VARCHAR(10) NOT NULL,
@@ -12,5 +12,7 @@ CREATE TABLE `clickstream_data`(
 `product_type`  VARCHAR(15),
 `department_name`  VARCHAR(20),
 `vendor_id` INT NOT NULL,
-`vendor_name`  VARCHAR(20)
+`vendor_name`  VARCHAR(20),
+`event_d` DATE ,
+`record_load_ts` TIMESTAMP
 );
