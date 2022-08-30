@@ -1,6 +1,6 @@
 package transform
 
-import constants.ApplicationConstants.join_type
+import constants.ApplicationConstants.JOIN_TYPE
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -66,7 +66,7 @@ class JoinTransformTest extends AnyFlatSpec {
     )
     ///
     val df: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(expectedDF), StructType(joinedTableSchema))
-    val outputDf: DataFrame = transform.JoinDatasets.joinDataFrame(clickStreamDF, itemDF, constants.ApplicationConstants.join_key, join_type)
+    val outputDf: DataFrame = transform.JoinDatasets.joinDataFrame(clickStreamDF, itemDF, constants.ApplicationConstants.JOIN_KEY, JOIN_TYPE)
 
 
 

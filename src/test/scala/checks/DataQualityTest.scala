@@ -7,9 +7,8 @@ import org.scalatest.flatspec.AnyFlatSpec
 
 import java.sql.{Date, Timestamp}
 
-class DataQualityTest extends AnyFlatSpec{
-  implicit val spark:SparkSession = helper.Helper.createSparkSession()
-
+class DataQualityTest extends AnyFlatSpec {
+  implicit val spark: SparkSession = helper.Helper.createSparkSession()
 
   "nullCheck " should " remove records having more than 60% of null values" in {
 
@@ -28,8 +27,8 @@ class DataQualityTest extends AnyFlatSpec{
       StructField("department_name", StringType, nullable = true),
       StructField("vendor_id", IntegerType, nullable = true),
       StructField("vendor_name", StringType, nullable = true),
-      StructField("event_d",DateType,nullable = true),
-      StructField("record_load_ts",TimestampType,nullable = true))
+      StructField("event_d", DateType, nullable = true),
+      StructField("record_load_ts", TimestampType, nullable = true))
 
     val sampleDF = Seq(
       Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook", true, true, 192.2, "B003", "Furniture", 4, "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
@@ -39,7 +38,7 @@ class DataQualityTest extends AnyFlatSpec{
     )
     val inputDF: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(sampleDF), StructType(joinedTableSchema))
 
-   val outputDF = nullCheck(helper.Helper.DATABASE_URL,inputDF)
+    val outputDF = nullCheck(helper.Helper.DATABASE_TEST_URL, inputDF)
 
     val expectedSampleDF = Seq(
       Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook", true, true, 192.2, "B003", "Furniture", 4, "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
@@ -73,8 +72,8 @@ class DataQualityTest extends AnyFlatSpec{
       StructField("department_name", StringType, nullable = true),
       StructField("vendor_id", IntegerType, nullable = true),
       StructField("vendor_name", StringType, nullable = true),
-      StructField("event_d",DateType,nullable = true),
-      StructField("record_load_ts",TimestampType,nullable = true))
+      StructField("event_d", DateType, nullable = true),
+      StructField("record_load_ts", TimestampType, nullable = true))
 
     val sampleDF = Seq(
       Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook", true, true, 192.2, "B003", "Furniture", 4, "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
@@ -84,7 +83,7 @@ class DataQualityTest extends AnyFlatSpec{
     )
     val inputDF: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(sampleDF), StructType(joinedTableSchema))
 
-  val outputDF = duplicatesCheck(helper.Helper.DATABASE_URL,inputDF, constants.ApplicationConstants.CLICK_STREAM_PRIMARY_KEYS, constants.ApplicationConstants.TIME_STAMP_COL)
+    val outputDF = duplicatesCheck(helper.Helper.DATABASE_TEST_URL, inputDF, constants.ApplicationConstants.CLICK_STREAM_PRIMARY_KEYS, constants.ApplicationConstants.TIME_STAMP_COL)
 
     val expectedSampleDF = Seq(
       Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook", true, true, 192.2, "B003", "Furniture", 4, "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf("2020-11-15 15:27:00")),
@@ -93,11 +92,10 @@ class DataQualityTest extends AnyFlatSpec{
     )
     val expectedOutputDF: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(expectedSampleDF), StructType(joinedTableSchema))
 
-   val resultDF = outputDF.except(expectedOutputDF)
+    val resultDF = outputDF.except(expectedOutputDF)
     val resultCount = resultDF.count()
     val count = 0
     assertResult(count)(resultCount)
 
   }
-
 }

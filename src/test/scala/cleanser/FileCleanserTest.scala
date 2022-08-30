@@ -7,11 +7,13 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.scalatest.flatspec.AnyFlatSpec
 
+import java.sql.Timestamp
+
 
 class FileCleanserTest extends AnyFlatSpec {
   implicit val spark: SparkSession = helper.Helper.createSparkSession()
-
   import spark.implicits._
+
   //  test cases for remove null
   "removeRows method1" should "remove null rows" in {
     val inputDF = Seq(
@@ -30,7 +32,7 @@ class FileCleanserTest extends AnyFlatSpec {
       "is_add_to_cart",
       "is_order_placed")
 
-    val modifiedDF = cleanser.FileCleanser.removeRows(inputDF, CLICK_STREAM_NOT_NULL_KEYS)
+    val modifiedDF = cleanser.FileCleanser.removeRows(inputDF, CLICK_STREAM_PRIMARY_KEYS)
     modifiedDF.show()
 
     val expectedDF = Seq(
@@ -73,7 +75,7 @@ class FileCleanserTest extends AnyFlatSpec {
 
 
     //    val timeStampDataTypeDF=datatype.DataType.stringToTimestamp(inputDF2,"event_timestamp",constants.ApplicationConstants.INPUT_TIME_STAMP_FORMAT)
-    val changeDataTypeDF = cleanser.FileCleanser.colDatatypeModifier(inputDF, constants.ApplicationConstants.CLICK_STREAM_DATATYPE)
+    val changeDataTypeDF = cleanser.FileCleanser.colDatatypeModifier(inputDF, CLICK_STREAM_DATATYPE)
     val modifiedDF = cleanser.FileCleanser.fillValues(changeDataTypeDF, COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP)
     //val modifiedDF2=cleanser.FileCleanser.fillValues(changeDataTypeDF,constants.ApplicationConstants.COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP)
 
@@ -110,55 +112,54 @@ class FileCleanserTest extends AnyFlatSpec {
 
   }
   //  test cases for fill current time
-//  "fillCurrentTime method " should "fill null values " in {
-//
-//    val inputDF = Seq(
-//      ("30334", "2020-11-15 15:27:01", "android", "B000078", "I7099", "B29093", "Youtube", "FALSE", "FALSE"),
-//      ("30385", null, "android", "B000078", "I7099", "D8142", "google", "FALSE", "FALSE"),
-//      ("30503", "2020-11-15 15:27:01", "android", "B000078", "I7099", "D8142", "google", "FALSE", "FALSE")
-//    ).toDF("id",
-//      "event_timestamp",
-//      "device_type",
-//      "session_id",
-//      "visitor_id",
-//      "item_id",
-//      "redirection_source",
-//      "is_add_to_cart",
-//      "is_order_placed")
-//
-//
-//    val modifiedDF3 = cleanser.FileCleanser.fillCurrentTime(inputDF)
-//
-//    val expectedData = Seq(
-//      Row("30334", "2020-11-15 15:27:01", "android", "B000078", "I7099", "B29093", "Youtube", "FALSE", "FALSE"),
-//      Row("30385", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now), "android", "B000078", "I7099", "D8142", "google", "FALSE", "FALSE"),
-//      Row("30503", "2020-11-15 15:27:01", "android", "B000078", "I7099", "D8142", "google", "FALSE", "FALSE")
-//    )
-//
-//
-//    val expectedSchema = StructType(Array(
-//
-//      StructField("id", StringType),
-//      StructField("event_timestamp", TimestampType),
-//      StructField("device_type", StringType),
-//      StructField("session_id", StringType),
-//      StructField("visitor_id", StringType),
-//      StructField("item_id", StringType),
-//      StructField("redirection_source", StringType),
-//      StructField("is_add_to_cart", StringType),
-//      StructField("is_order_placed", StringType)
-//    ))
-//
-//    val expectedDF3 = spark.createDataFrame(
-//      spark.sparkContext.parallelize(expectedData), expectedSchema)
-//
-//
-//    val currTimeExpected = expectedDF3.take(2)(1)(1).toString.substring(0, 13)
-//    val currTimeFromFunction = modifiedDF3.take(2)(1)(1).toString.substring(0, 13)
-//
-//    assert(currTimeFromFunction == currTimeExpected)
-//
-//  }
+  "fillCurrentTime method " should "fill null values " in {
+
+    val inputDF = Seq(
+      ("30334", "2020-11-15 15:27:01", "android", "B000078", "I7099", "B29093", "Youtube", "FALSE", "FALSE"),
+      ("30385", null, "android", "B000078", "I7099", "D8142", "google", "FALSE", "FALSE"),
+      ("30503", "2020-11-15 15:27:01", "android", "B000078", "I7099", "D8142", "google", "FALSE", "FALSE")
+    ).toDF("id",
+      "event_timestamp",
+      "device_type",
+      "session_id",
+      "visitor_id",
+      "item_id",
+      "redirection_source",
+      "is_add_to_cart",
+      "is_order_placed")
+
+
+    val modifiedDF = cleanser.FileCleanser.fillTime(inputDF)
+
+    val expectedData = Seq(
+      Row("30334", Timestamp.valueOf("2020-11-15 15:27:01"), "android", "B000078", "I7099", "B29093", "Youtube", "FALSE", "FALSE"),
+      Row("30385", Timestamp.valueOf("1999-01-01 00:00:00"), "android", "B000078", "I7099", "D8142", "google", "FALSE", "FALSE"),
+      Row("30503", Timestamp.valueOf("2020-11-15 15:27:01"), "android", "B000078", "I7099", "D8142", "google", "FALSE", "FALSE")
+    )
+
+    val expectedSchema = StructType(Array(
+
+      StructField("id", StringType),
+      StructField("event_timestamp", TimestampType),
+      StructField("device_type", StringType),
+      StructField("session_id", StringType),
+      StructField("visitor_id", StringType),
+      StructField("item_id", StringType),
+      StructField("redirection_source", StringType),
+      StructField("is_add_to_cart", StringType),
+      StructField("is_order_placed", StringType)
+    ))
+
+    val expectedDF = spark.createDataFrame(
+      spark.sparkContext.parallelize(expectedData), expectedSchema)
+
+    val result = modifiedDF.except(expectedDF)
+    val ans = result.count()
+    val count = 0
+    assertResult(count)(ans)
+
+  }
+
   //test cases for string to timestamp method
   "stringToTimeStamp method " should "convert string to timestamp format" in {
 
@@ -268,30 +269,75 @@ class FileCleanserTest extends AnyFlatSpec {
   }
   //test cases for  removeDuplicates method
   "removeDuplicates" should "remove duplicates to required format" in {
-    val inputDf: DataFrame = Seq(
+    val clickStreamDF: DataFrame = Seq(
       ("29839", "11/15/2020 15:11", "android", "B000078", "I7099", "B17543", "GOOGLE", "", "TRUE"),
       ("30504", "11/15/2020 15:27", "android", "B000078", "I7099", "B19304", "LinkedIn", "", "TRUE"),
       ("30334", "11/15/2020 15:23", "android", "B000078", "I7099", "B29093", "Youtube", "", ""),
       ("30385", "11/15/2020 15:24", "android", "B000078", "I7099", "D8142", "google", "TRUE", ""),
       ("30503", "11/15/2020 15:27", "android", "B000078", "I7099", "D8142", "FACEBOOK", "TRUE", "TRUE")
-    ).toDF("id", "event_timestamp", "device_type", "session_id", "visitor_id", "item_id", "redirection_source", "is_add_to_cart", "is_order_placed")
-    val modifiedDF: DataFrame = removeDuplicates(inputDf, CLICK_STREAM_PRIMARY_KEYS, Some(ApplicationConstants.TIME_STAMP_COL))
-    val expectedDF: DataFrame = Seq(
+    ).toDF("id",
+      "event_timestamp",
+      "device_type",
+      "session_id",
+      "visitor_id",
+      "item_id",
+      "redirection_source",
+      "is_add_to_cart",
+      "is_order_placed")
+
+    val modifiedClickStreamDF: DataFrame = removeDuplicates(clickStreamDF, CLICK_STREAM_PRIMARY_KEYS, Some(ApplicationConstants.TIME_STAMP_COL))
+
+    val expectedClickStreamDF: DataFrame = Seq(
       ("29839", "11/15/2020 15:11", "android", "B000078", "I7099", "B17543", "GOOGLE", "", "TRUE"),
       ("30504", "11/15/2020 15:27", "android", "B000078", "I7099", "B19304", "LinkedIn", "", "TRUE"),
       ("30334", "11/15/2020 15:23", "android", "B000078", "I7099", "B29093", "Youtube", "", ""),
       ("30503", "11/15/2020 15:27", "android", "B000078", "I7099", "D8142", "FACEBOOK", "TRUE", "TRUE")
-    ).toDF("id", "event_timestamp", "device_type", "session_id", "visitor_id", "item_id", "redirection_source", "is_add_to_cart", "is_order_placed")
+    ).toDF("id",
+      "event_timestamp",
+      "device_type",
+      "session_id",
+      "visitor_id",
+      "item_id",
+      "redirection_source",
+      "is_add_to_cart",
+      "is_order_placed")
 
-    val result = modifiedDF.except(expectedDF)
-    val ans = result.count()
-    assertResult(0) {
-      ans
-    }
+    val itemDF : DataFrame = Seq(
+      ("C6880", "2301", "D040", "Computers & Accessories", "3", "MOJO INC"),
+      ("F4939" ,"1756.5" ,"G822" ,"Collectibles", "2", "AMBER PRODUCTS"),
+      ("F4939" ,"1756.5" ,"G822" ,"Collectibles", "2", "AMBER PRODUCTS"),
+      ("E0383", "412.5", "B619", "Apps & Games", "4", "LARVEL SUPPLY"),
+      ("I777", "1177.5", "F264", "Baby", "2", "AMBER PRODUCTS")
+    ).toDF("item_id",
+      "item_price",
+      "product_type",
+      "department_name",
+      "vendor_id",
+      "vendor_name")
 
+    val modifiedItemDF : DataFrame = removeDuplicates(itemDF, ITEM_PRIMARY_KEYS, None)
+
+    val expectedItemDF : DataFrame = Seq(
+      ("C6880", "2301", "D040", "Computers & Accessories", "3", "MOJO INC"),
+      ("F4939" ,"1756.5" ,"G822" ,"Collectibles", "2", "AMBER PRODUCTS"),
+      ("E0383", "412.5", "B619", "Apps & Games", "4", "LARVEL SUPPLY"),
+      ("I777", "1177.5", "F264", "Baby", "2", "AMBER PRODUCTS")
+    ).toDF("item_id",
+      "item_price",
+      "product_type",
+      "department_name",
+      "vendor_id",
+      "vendor_name")
+
+    val clickStreamResult = modifiedClickStreamDF.except(expectedClickStreamDF)
+    val clickStreamAns = clickStreamResult.count()
+    assertResult(0)(clickStreamAns)
+
+    val itemResult = modifiedItemDF.except(expectedItemDF)
+    val itemAns = itemResult.count()
+    assertResult(0)(itemAns)
 
   }
-
 
 }
 

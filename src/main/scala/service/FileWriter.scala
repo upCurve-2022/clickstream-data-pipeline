@@ -1,5 +1,6 @@
 package service
 
+import constants.ApplicationConstants.{DB_SOURCE, DB_USER, ENCRYPTED_DATABASE_PASSWORD, JDBC_DRIVER}
 import exceptions.Exceptions.DatabaseException
 import org.apache.spark.sql.DataFrame
 
@@ -20,24 +21,20 @@ object FileWriter {
     password
   }
 
-  def fileWriter(databaseURL:String,tableName: String, df: DataFrame): Unit = {
-    //change in conf
-
-    val password = decryptPassword(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD)
+  def fileWriter(databaseURL:String,tableName: String, inputDF: DataFrame): Unit = {
+    val password = decryptPassword(ENCRYPTED_DATABASE_PASSWORD)
     try {
-        df.write.format("jdbc")
+        inputDF.write.format(DB_SOURCE)
           .option("url", databaseURL)
-          .option("driver", "com.mysql.cj.jdbc.Driver")
+          .option("driver", JDBC_DRIVER)
           .option("dbtable", tableName)
-          .option("user", "root")
+          .option("user", DB_USER)
           .option("password",password)
           .mode("overwrite")
           .save()
     }
       catch{
-        case e: Exception => throw DatabaseException("Database connection is not established")
-
-
+        case _: Exception => throw DatabaseException("Database connection is not established")
     }
   }
 }
