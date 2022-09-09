@@ -9,10 +9,9 @@ import java.util.Base64
 
 object FileWriter {
 
-
-  def decryptPassword(encryptedPasswordPath:String):String={
+  def decryptPassword(encryptedPasswordPath: String): String = {
     //read from file and decrypt password
-    val source=scala.io.Source.fromFile(encryptedPasswordPath)
+    val source = scala.io.Source.fromFile(encryptedPasswordPath)
     val encryptedPassword = try source.mkString finally source.close()
     val decoded = Base64.getDecoder.decode(encryptedPassword)
 
@@ -21,20 +20,20 @@ object FileWriter {
     password
   }
 
-  def fileWriter(databaseURL:String,tableName: String, inputDF: DataFrame): Unit = {
+  def fileWriter(databaseURL: String, tableName: String, inputDF: DataFrame): Unit = {
     val password = decryptPassword(ENCRYPTED_DATABASE_PASSWORD)
     try {
-        inputDF.write.format(DB_SOURCE)
-          .option("url", databaseURL)
-          .option("driver", JDBC_DRIVER)
-          .option("dbtable", tableName)
-          .option("user", DB_USER)
-          .option("password",password)
-          .mode("overwrite")
-          .save()
+      inputDF.write.format(DB_SOURCE)
+        .option("url", databaseURL)
+        .option("driver", JDBC_DRIVER)
+        .option("dbtable", tableName)
+        .option("user", DB_USER)
+        .option("password", password)
+        .mode("overwrite")
+        .save()
     }
-      catch{
-        case _: Exception => throw DatabaseException("Database connection is not established")
+    catch {
+      case _: Exception => throw DatabaseException("Database connection is not established")
     }
   }
 }

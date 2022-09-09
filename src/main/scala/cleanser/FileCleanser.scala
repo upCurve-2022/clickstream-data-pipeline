@@ -1,10 +1,9 @@
 package cleanser
 
-import constants.ApplicationConstants.{DEFAULT_TIMESTAMP_VALUE, TIME_STAMP_COL}
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types.TimestampType
+import org.apache.spark.sql.types.{StructField, StructType}
 import utils.ApplicationUtils.check
 
 object FileCleanser {
@@ -23,12 +22,6 @@ object FileCleanser {
     check(inputDF, colList)
     val filledDf: DataFrame = inputDF.na.fill(nullMap)
     filledDf
-  }
-
-  //Handling null values -filling null value with the default timestamp
-  def fillTime(inputDF: DataFrame): DataFrame = {
-    val fillTimeDF = inputDF.withColumn(TIME_STAMP_COL, coalesce(col(TIME_STAMP_COL), lit(DEFAULT_TIMESTAMP_VALUE).cast(TimestampType)))
-    fillTimeDF
   }
 
   /** ************MODIFYING COLUMN DATA TYPES******************** */

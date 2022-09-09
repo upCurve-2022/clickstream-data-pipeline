@@ -6,9 +6,9 @@ import service.FileWriter.decryptPassword
 
 import java.io.{File, PrintWriter}
 
-class FileWriterTest extends AnyFlatSpec{
+class FileWriterTest extends AnyFlatSpec {
 
-  implicit val spark:SparkSession = helper.Helper.createSparkSession()
+  implicit val spark: SparkSession = helper.Helper.createSparkSession()
 
   "decrypt password " should "decrypt password from the encrypted password file" in {
     //create a file with encrypted password "cGFzczEyMw=="
@@ -27,10 +27,10 @@ class FileWriterTest extends AnyFlatSpec{
   }
 
   "file writer " should "write a dataframe to a table " in {
-    val inputDF= service.FileReader.fileReader(helper.Helper.CLICK_STREAM_TEST_INPUT_PATH, "csv")
+    val inputDF = service.FileReader.fileReader(helper.Helper.CLICK_STREAM_TEST_INPUT_PATH, "csv")
     val tableName = "unittest"
     val dbURL = helper.Helper.DATABASE_TEST_URL
-    service.FileWriter. fileWriter(dbURL,tableName, inputDF)
+    service.FileWriter.fileWriter(dbURL, tableName, inputDF)
   }
 
 }

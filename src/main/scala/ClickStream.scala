@@ -6,9 +6,7 @@ import org.apache.spark.sql.SparkSession
 import service.DataPipeline.execute
 import utils.ApplicationUtils.{configuration, createSparkSession}
 
-import scala.sys.exit
-
-object ClickStream extends Logging{
+object ClickStream extends Logging {
   def main(args: Array[String]): Unit = {
     val confPath = args(0)
     val appConf: Config = configuration(confPath)
@@ -34,10 +32,10 @@ object ClickStream extends Logging{
         exitCode = 1
     }
     finally {
-      if(exitCode == 1){
-        exit(1)
+      if (exitCode == 1) {
+        System.exit(exitCode)
       }
-      else{
+      else {
         log.info("PipeLine execution completed")
       }
       spark.stop()

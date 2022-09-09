@@ -3,9 +3,11 @@ package utils
 import com.typesafe.config.{Config, ConfigFactory}
 import constants.ApplicationConstants.{APP_MASTER, APP_NAME}
 import exceptions.Exceptions.{ColumnNotFoundException, DataframeIsEmptyException}
+import org.apache.spark.sql.types.{DataType, StructType}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import java.io.File
+import scala.io.Source
 
 object ApplicationUtils {
 
@@ -33,9 +35,17 @@ object ApplicationUtils {
       throw DataframeIsEmptyException("The dataframe is empty")
     } else {
       colName.foreach { (element: String) =>
-        if(!inputDF.columns.contains(element))
+        if (!inputDF.columns.contains(element))
           throw ColumnNotFoundException("The specified column does not exist")
       }
     }
+  }
+
+  //to extract the schema from the json file
+  def schemaRead(schemaPath : String) : StructType = {
+    val source = Source.fromFile(schemaPath)
+    val schemaJson = try source.getLines().mkString finally source.close()
+    val correctSchema = DataType.fromJson(schemaJson).asInstanceOf[StructType]
+    correctSchema
   }
 }
