@@ -1,37 +1,19 @@
 package checks
 
-import constants.ApplicationConstants.{ERR_TABLE_NULL_CHECK, TABLE_NAME}
+import constants.ApplicationConstants.{ERR_TABLE_DUP_CHECK, ERR_TABLE_NULL_CHECK}
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{col, desc, row_number}
-import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import service.FileWriter
+import utils.ApplicationUtils.schemaRead
+
 import scala.collection.JavaConversions._
 
 object DataQualityChecks {
 
-  var count = 0
-  var errorList: List[Row] = List[Row]()
-  val errorSchema: StructType = StructType(Array(
-    StructField("item_id", StringType, nullable = true),
-    StructField("id", IntegerType, nullable = true),
-    StructField("event_timestamp", TimestampType, nullable = true),
-    StructField("device_type", StringType, nullable = true),
-    StructField("session_id", StringType, nullable = true),
-    StructField("visitor_id", StringType, nullable = true),
-    StructField("redirection_source", StringType, nullable = true),
-    StructField("is_add_to_cart", BooleanType, nullable = true),
-    StructField("is_order_placed", BooleanType, nullable = true),
-    StructField("item_price", DoubleType, nullable = true),
-    StructField("product_type", StringType, nullable = true),
-    StructField("department_name", StringType, nullable = true),
-    StructField("vendor_id", IntegerType, nullable = true),
-    StructField("vendor_name", StringType, nullable = true),
-    StructField("event_d", DateType, nullable = true),
-    StructField("record_load_ts", TimestampType, nullable = true)))
-
   //null data quality check
   def nullCheck(databaseUrl: String, inputDF: DataFrame)(implicit spark: SparkSession): DataFrame = {
+    var count = 0
     var errorList: List[Row] = List[Row]()
     inputDF.collect().foreach(row => {
       row.toSeq.foreach(c => {
@@ -45,7 +27,7 @@ object DataQualityChecks {
       count = 0
     })
 
-    val errorDF = spark.createDataFrame(errorList, errorSchema)
+    val errorDF = spark.createDataFrame(errorList, inputDF.schema)
     FileWriter.fileWriter(databaseUrl, ERR_TABLE_NULL_CHECK, errorDF)
     val nullCheckFinalDF = inputDF.except(errorDF)
     nullCheckFinalDF
@@ -57,9 +39,19 @@ object DataQualityChecks {
       .filter(col("rn") > 1).drop("rn")
 
     val duplicateCheckFinalDF = inputDF.except(exceptionsDF)
-    FileWriter.fileWriter(databaseUrl, TABLE_NAME, exceptionsDF)
+    FileWriter.fileWriter(databaseUrl, ERR_TABLE_DUP_CHECK, exceptionsDF)
     duplicateCheckFinalDF
   }
 
-
+  //schema validation check
+  def schemaValidationCheck(inputDF: DataFrame, schemaPath: String)(implicit sparkSession: SparkSession): DataFrame = {
+    val dfSchema = inputDF.schema
+    val correctSchema = schemaRead(schemaPath)
+    if(dfSchema != correctSchema){
+      val outputDF = sparkSession.sqlContext.createDataFrame(inputDF.rdd, correctSchema)
+      outputDF
+    }else{
+      inputDF
+    }
+  }
 }

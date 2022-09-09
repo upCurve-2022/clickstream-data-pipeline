@@ -1,11 +1,10 @@
 package service
 
-import checks.DataQualityChecks.{duplicatesCheck, nullCheck}
+import checks.DataQualityChecks.{duplicatesCheck, nullCheck, schemaValidationCheck}
 import cleanser.FileCleanser._
 import com.typesafe.config.Config
 import constants.ApplicationConstants
 import constants.ApplicationConstants._
-import org.apache.log4j.Logger
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import service.FileReader.fileReader
 import service.FileWriter.fileWriter
@@ -24,11 +23,8 @@ object DataPipeline {
     //eliminate rows on NOT_NULL_COLUMNS
     val rowEliminatedDF = removeRows(changeDataTypeDF, CLICK_STREAM_PRIMARY_KEYS)
 
-    // fill time stamp
-    val timeFilledDF = fillTime(rowEliminatedDF)
-
     // fill null values
-    val nullFilledDF = fillValues(timeFilledDF, COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP)
+    val nullFilledDF = fillValues(rowEliminatedDF, COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP)
 
     //converting redirection column into lowercase
     val modifiedDF = toLowercase(nullFilledDF, REDIRECTION_COL)
@@ -65,7 +61,8 @@ object DataPipeline {
     //inputting data from conf file
     val clickStreamInputPath: String = appConf.getString(CLICK_STREAM_INPUT_PATH)
     val itemDataInputPath: String = appConf.getString(ITEM_DATA_INPUT_PATH)
-    val database_URL = appConf.getString(ApplicationConstants.DATABASE_URL)
+    val database_URL = appConf.getString(DATABASE_URL)
+    val schemaPath = appConf.getString(SCHEMA_PATH)
 
     //clickStreamInitialSteps returns a dataframe without duplicates
     val clickStreamDFDeDuplicates = clickStreamInitialSteps(clickStreamInputPath, FILE_FORMAT)
@@ -81,10 +78,12 @@ object DataPipeline {
 
     // transform operation is performed
     val transformJoinedDF = transformDataFrame(nullHandledJoinTable)
-    transformJoinedDF.show()
 
     //performing data quality checks on the final dataframe before loading it into mysql database
-    val nullCheckFinalDF: DataFrame = nullCheck(database_URL, transformJoinedDF)
+    val correctSchemaDF = schemaValidationCheck(transformJoinedDF, schemaPath)
+    correctSchemaDF.printSchema()
+    sys.exit()
+    val nullCheckFinalDF: DataFrame = nullCheck(database_URL, correctSchemaDF)
     val duplicateCheckFinalDF = duplicatesCheck(database_URL, nullCheckFinalDF, FINAL_PRIMARY_KEY, TIME_STAMP_COL)
 
     //final df to be inserted - write into table
