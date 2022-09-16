@@ -16,20 +16,20 @@ object DataPipeline {
     //reads the file into a dataframe
     val initialDF = fileReader(filePath, fileFormat)
 
-    //modifying column dataTypes
+    //modifies column dataTypes
     val timeStampDataTypeDF = stringToTimestamp(initialDF, TIME_STAMP_COL, INPUT_TIME_STAMP_FORMAT)
     val changeDataTypeDF = colDatatypeModifier(timeStampDataTypeDF, CLICK_STREAM_DATATYPE)
 
-    //eliminate rows on NOT_NULL_COLUMNS
+    //eliminates rows with null primary key
     val rowEliminatedDF = removeRows(changeDataTypeDF, CLICK_STREAM_PRIMARY_KEYS)
 
-    // fill null values
+    //fills custom null values
     val nullFilledDF = fillValues(rowEliminatedDF, COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP)
 
-    //converting redirection column into lowercase
+    //converts redirection column into lowercase
     val modifiedDF = toLowercase(nullFilledDF, REDIRECTION_COL)
 
-    //remove duplicates from the dataset
+    //removes duplicates
     val DFDeDuplicates = removeDuplicates(modifiedDF, CLICK_STREAM_PRIMARY_KEYS, Some(TIME_STAMP_COL))
 
     DFDeDuplicates
@@ -40,16 +40,16 @@ object DataPipeline {
     //reads the file into a dataframe
     val initialDF = fileReader(filePath, fileFormat)
 
-    //modifying column dataTypes
+    //modifies column dataTypes
     val changeDataTypeDF = colDatatypeModifier(initialDF, ITEM_DATATYPE)
 
-    //eliminate rows on NOT_NULL_COLUMNS
+    //eliminates rows with null primary key
     val rowEliminatedDF = removeRows(changeDataTypeDF, ITEM_PRIMARY_KEYS)
 
-    //fill null values
+    //fills custom null values
     val nullFilledDF = fillValues(rowEliminatedDF, COLUMN_NAME_DEFAULT_VALUE_ITEM_DATA_MAP)
 
-    //remove duplicates from the dataset
+    //removes duplicates
     val DFDeDuplicates = removeDuplicates(nullFilledDF, ITEM_PRIMARY_KEYS, None)
 
     DFDeDuplicates
@@ -58,36 +58,37 @@ object DataPipeline {
   //executes the pipeline by joining the two datasets and loading it into mysql database
   def execute(appConf: Config)(implicit sparkSession: SparkSession): Unit = {
 
-    //inputting data from conf file
+    //inputs data from config
     val clickStreamInputPath: String = appConf.getString(CLICK_STREAM_INPUT_PATH)
     val itemDataInputPath: String = appConf.getString(ITEM_DATA_INPUT_PATH)
     val database_URL = appConf.getString(DATABASE_URL)
     val schemaPath = appConf.getString(SCHEMA_PATH)
 
-    //clickStreamInitialSteps returns a dataframe without duplicates
-    val clickStreamDFDeDuplicates = clickStreamInitialSteps(clickStreamInputPath, FILE_FORMAT)
+    //returns click stream dataframe without duplicates
+    val clickStreamDFDeDuplicates = clickStreamInitialSteps(clickStreamInputPath, READ_FORMAT)
 
-    //itemInitialSteps returns a dataframe without duplicates
-    val itemDFDeDuplicates = itemInitialSteps(itemDataInputPath, FILE_FORMAT)
+    //returns item dataframe without duplicates
+    val itemDFDeDuplicates = itemInitialSteps(itemDataInputPath, READ_FORMAT)
 
-    //  joining two datasets
+    //joins two datasets
     val joinedDataframe = joinDataFrame(clickStreamDFDeDuplicates, itemDFDeDuplicates, JOIN_KEY, JOIN_TYPE)
 
-    //handling null values for joined dataframe
+    //handles null values for joined dataframe
     val nullHandledJoinTable = fillValues(joinedDataframe, COLUMN_NAME_DEFAULT_VALUE_ITEM_DATA_MAP)
 
-    // transform operation is performed
+    //transforms joined dataframe
     val transformJoinedDF = transformDataFrame(nullHandledJoinTable)
 
-    //performing data quality checks on the final dataframe before loading it into mysql database
+    //performs data quality checks
     val correctSchemaDF = schemaValidationCheck(transformJoinedDF, schemaPath)
-    correctSchemaDF.printSchema()
-    sys.exit()
     val nullCheckFinalDF: DataFrame = nullCheck(database_URL, correctSchemaDF)
     val duplicateCheckFinalDF = duplicatesCheck(database_URL, nullCheckFinalDF, FINAL_PRIMARY_KEY, TIME_STAMP_COL)
 
-    //final df to be inserted - write into table
-    fileWriter(database_URL, TABLE_NAME, duplicateCheckFinalDF)
+    //prints final dataframe
+    duplicateCheckFinalDF.printSchema()
+    duplicateCheckFinalDF.show(20)
 
+    //writes final dataframe into MySQL database
+    fileWriter(database_URL, TABLE_NAME, duplicateCheckFinalDF)
   }
 }

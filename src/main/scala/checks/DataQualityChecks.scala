@@ -1,9 +1,9 @@
 package checks
 
-import constants.ApplicationConstants.{ERR_TABLE_DUP_CHECK, ERR_TABLE_NULL_CHECK}
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{col, desc, row_number}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import constants.ApplicationConstants.{ERR_TABLE_DUP_CHECK, ERR_TABLE_NULL_CHECK}
 import service.FileWriter
 import utils.ApplicationUtils.schemaRead
 

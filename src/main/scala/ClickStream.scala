@@ -4,17 +4,20 @@ import exceptions.Exceptions._
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 import service.DataPipeline.execute
-import utils.ApplicationUtils.{configuration, createSparkSession}
+import utils.ApplicationUtils.{createConfiguration, createSparkSession}
 
 object ClickStream extends Logging {
   def main(args: Array[String]): Unit = {
+    //creates config using the given configuration path
     val confPath = args(0)
-    val appConf: Config = configuration(confPath)
+    val appConf: Config = createConfiguration(confPath)
+
+    //creates an implicit spark session
     implicit val spark: SparkSession = createSparkSession(appConf)
+
     var exitCode = 0
 
     try {
-      //performing reader and cleanser operations on both dataset
       execute(appConf)
     }
     catch {

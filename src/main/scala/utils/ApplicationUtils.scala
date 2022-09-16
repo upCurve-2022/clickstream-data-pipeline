@@ -11,14 +11,14 @@ import scala.io.Source
 
 object ApplicationUtils {
 
-  //configuration
-  def configuration(inputPath: String): Config = {
+  //creates the configuration
+  def createConfiguration(inputPath: String): Config = {
     val parsedConfig = ConfigFactory.parseFile(new File(inputPath))
-    val appConf: Config = ConfigFactory.load(parsedConfig)
-    appConf
+    val resolvedConfig: Config = ConfigFactory.load(parsedConfig)
+    resolvedConfig
   }
 
-  //Creating the spark session
+  //creates the spark session
   def createSparkSession(inputAppConf: Config): SparkSession = {
     implicit val spark: SparkSession = SparkSession.getActiveSession.getOrElse(
       SparkSession.builder
@@ -29,8 +29,8 @@ object ApplicationUtils {
     spark
   }
 
-  //checking for exceptions
-  def check(inputDF: DataFrame, colName: Seq[String]): Unit = {
+  //checks for exceptions
+  def commonChecks(inputDF: DataFrame, colName: Seq[String]): Unit = {
     if (inputDF.count() == 0) {
       throw DataframeIsEmptyException("The dataframe is empty")
     } else {
@@ -41,7 +41,7 @@ object ApplicationUtils {
     }
   }
 
-  //to extract the schema from the json file
+  //extracts the schema from the json file
   def schemaRead(schemaPath : String) : StructType = {
     val source = Source.fromFile(schemaPath)
     val schemaJson = try source.getLines().mkString finally source.close()
