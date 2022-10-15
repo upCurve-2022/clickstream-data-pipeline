@@ -8,7 +8,6 @@ import java.util.Base64
 
 object FileWriter {
 
-
   def decryptPassword(encryptedPasswordPath:String):String={
     //read from file and decrypt password
     val source=scala.io.Source.fromFile(encryptedPasswordPath)
@@ -20,12 +19,11 @@ object FileWriter {
     password
   }
 
-  def fileWriter(databaseURL:String,tableName: String, df: DataFrame): Unit = {
-    //change in conf
+  def fileWriter(databaseURL:String,tableName: String, inputDF: DataFrame): Unit = {
 
     val password = decryptPassword(constants.ApplicationConstants.ENCRYPTED_DATABASE_PASSWORD)
     try {
-        df.write.format("jdbc")
+      inputDF.write.format("jdbc")
           .option("url", databaseURL)
           .option("driver", "com.mysql.cj.jdbc.Driver")
           .option("dbtable", tableName)
@@ -36,7 +34,6 @@ object FileWriter {
     }
       catch{
         case e: Exception => throw DatabaseException("Database connection is not established")
-
 
     }
   }

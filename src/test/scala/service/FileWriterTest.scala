@@ -11,7 +11,7 @@ class FileWriterTest extends AnyFlatSpec{
   implicit val spark:SparkSession = helper.Helper.createSparkSession()
 
   "decrypt password " should "decrypt password from the encrypted password file" in {
-    //create a file with encrypted password "cGFzczEyMw=="
+    //creates a file with encrypted password "cGFzczEyMw=="
     val ePassFile = new File("src/test/scala/e_password.txt")
     val ePass = "src/test/scala/e_password.txt"
     val writer = new PrintWriter(ePassFile)
@@ -27,10 +27,10 @@ class FileWriterTest extends AnyFlatSpec{
   }
 
   "file writer " should "write a dataframe to a table " in {
-    val inputDF= service.FileReader.fileReader("data/clickstream_log.csv", "csv")
+    val inputDF= service.FileReader.fileReader(helper.Helper.CLICK_STREAM_TEST_INPUT_PATH, "csv")
     val tableName = "unittest"
-    val dbURL = "jdbc:mysql://localhost:3306/target_project"
+    val dbURL = helper.Helper.DATABASE_TEST_URL
     service.FileWriter. fileWriter(dbURL,tableName, inputDF)
-  }
 
+  }
 }

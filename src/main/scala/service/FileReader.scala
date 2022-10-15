@@ -1,15 +1,18 @@
 package service
 
 import exceptions.Exceptions.{DataframeIsEmptyException, EmptyFilePathException, FilePathNotFoundException, FileReaderException, InvalidInputFormatException}
-import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{AnalysisException, DataFrame, SparkSession}
 
-object FileReader extends Logging {
+object FileReader {
 
+  //read a file from a specified location into a dataframe
   def fileReader(filePath: String, fileFormat: String)(implicit sparkSession: SparkSession): DataFrame = {
+    //if input path is empty
     if(filePath == "" ){
       throw EmptyFilePathException("The file path is empty. Please provide a valid file path.")
     }
+
+    //reads the file into a dataframe
     val outputDF = try {
       sparkSession.read.option("header", "true").format(fileFormat).load(filePath)
 
@@ -19,6 +22,8 @@ object FileReader extends Logging {
       case ex: Exception => throw FileReaderException("Unable to read file from given path.")
 
     }
+
+    //if dataframe does not contain any records
     if (outputDF.count() == 0) {
       throw DataframeIsEmptyException("The dataFrame is empty")
     }
