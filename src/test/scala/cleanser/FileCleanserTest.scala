@@ -1,10 +1,11 @@
 package cleanser
 
-import cleanser.FileCleanser.removeDuplicates
-import constants.ApplicationConstants
+import cleanser.FileCleanser._
 import constants.ApplicationConstants._
-import helper.Helper.CLICK_STREAM_SCHEMA
+import helper.Helper.{CLICK_STREAM_SCHEMA, DATABASE_TEST_URL}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+
+import scala.collection.JavaConversions._
 import org.scalatest.flatspec.AnyFlatSpec
 
 import java.sql.Timestamp
@@ -31,7 +32,7 @@ class FileCleanserTest extends AnyFlatSpec {
       "is_add_to_cart",
       "is_order_placed"
     )
-    val modifiedDf: DataFrame = cleanser.FileCleanser.stringToTimestamp(inputDF, TIME_STAMP_COL, INPUT_TIME_STAMP_FORMAT)
+    val modifiedDf: DataFrame = stringToTimestamp(inputDF, TIME_STAMP_COL, INPUT_TIME_STAMP_FORMAT)
     val expectedDF: DataFrame = Seq((
       "30503", "2020-11-15 15:27:00", "android", "B000078", "I7099", "D8142", "FACEBOOK", "TRUE", "TRUE"),
       ("30542", "2020-01-20 15:00:00", "android", "B000078", "I7099", "D8142", "Google", "TRUE", "TRUE"),
@@ -70,7 +71,7 @@ class FileCleanserTest extends AnyFlatSpec {
       "is_add_to_cart",
       "is_order_placed"
     )
-    val modifiedDf: DataFrame = cleanser.FileCleanser.toLowercase(inputDF, REDIRECTION_COL)
+    val modifiedDf: DataFrame = toLowercase(inputDF, REDIRECTION_COL)
     val expectedDF: DataFrame = Seq(
       ("30503", "11/15/2020 15:27", "android", "B000078", "I7099", "D8142", "facebook", "TRUE", "TRUE"),
       ("30542", "01/20/2020 15:00", "android", "B000078", "I7099", "D8142", "google", "TRUE", "TRUE"),
@@ -92,28 +93,6 @@ class FileCleanserTest extends AnyFlatSpec {
     assertResult(count)(ans)
   }
 
-  //  test cases for column datatype modifier
-  "columnDatatypeModifier" should "convert column datatype to required format" in {
-    val inputDF = Seq(
-      ("30503", "2020-11-15 15:27:00", "android", "B000078", "I7099", "D8142", "FACEBOOK", "TRUE", "TRUE"),
-      ("30542", "2020-01-20 15:00:00", "android", "B000078", "I7099", "D8142", "Google", "TRUE", "TRUE"),
-      ("13931", "2020-11-15 09:07:00", "android", "B000092", "C2146", "H6156", "facebook", "", ""),
-      ("13931", "2020-11-15 19:07:00", "android", "", "C2146", "", "facebook", "", "")
-    ).toDF(
-      "id",
-      "event_timestamp",
-      "device_type",
-      "session_id",
-      "visitor_id",
-      "item_id",
-      "redirection_source",
-      "is_add_to_cart",
-      "is_order_placed"
-    )
-
-    val outputDF = cleanser.FileCleanser.colDatatypeModifier(inputDF, constants.ApplicationConstants.CLICK_STREAM_DATATYPE)
-    assertResult(outputDF.schema)(CLICK_STREAM_SCHEMA)
-  }
 
   //  test cases for remove null
   "removeRows method1" should "remove null rows" in {
@@ -133,7 +112,7 @@ class FileCleanserTest extends AnyFlatSpec {
       "is_add_to_cart",
       "is_order_placed")
 
-    val modifiedDF = cleanser.FileCleanser.removeRows(inputDF, CLICK_STREAM_PRIMARY_KEYS)
+    val modifiedDF = removeRows(inputDF, CLICK_STREAM_PRIMARY_KEYS, DATABASE_TEST_URL, NULL_TABLE_CLICK_STREAM)
 
     val expectedDF = Seq(
       ("29839", "11/15/2020 15:27", "android", "B000078", "I7099", "B17543", "GOOGLE", "", "TRUE"),
@@ -159,21 +138,13 @@ class FileCleanserTest extends AnyFlatSpec {
   //  test cases for fill values
   "fillValues method " should "fill null values " in {
     val inputDF = Seq(
-      ("30334", "11/15/2020 15:23", null, "B000078", "I7099", "B29093", "Youtube", "", ""),
-      ("", "11/15/2020 15:24", "android", null, "I7099", "D8142", "google", "TRUE", ""),
-      ("30503", "11/15/2020 15:27", "android", "B000078", "I7099", "D8142", null, "TRUE", "TRUE")
-    ).toDF("id",
-      "event_timestamp",
-      "device_type",
-      "session_id",
-      "visitor_id",
-      "item_id",
-      "redirection_source",
-      "is_add_to_cart",
-      "is_order_placed")
+      Row(30334, null, null, "B000078", "I7099", "B29093", "Youtube", null, null),
+      Row(null, null, "android", null, "I7099", "D8142", "google", true, null),
+      Row(30503, null, "android", "B000078", "I7099", "D8142", null, true, true)
+    )
 
-    val changeDataTypeDF = cleanser.FileCleanser.colDatatypeModifier(inputDF, CLICK_STREAM_DATATYPE)
-    val modifiedDF = cleanser.FileCleanser.fillValues(changeDataTypeDF, COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP)
+    val changeDataTypeDF: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(inputDF), CLICK_STREAM_SCHEMA)
+    val modifiedDF = fillValues(changeDataTypeDF, COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP)
 
     val expectedData = Seq(
       Row(30334, Timestamp.valueOf("1999-01-01 00:00:00"), "unknown", "B000078", "I7099", "B29093", "Youtube", false, false),
@@ -207,7 +178,7 @@ class FileCleanserTest extends AnyFlatSpec {
       "is_add_to_cart",
       "is_order_placed")
 
-    val modifiedClickStreamDF: DataFrame = removeDuplicates(clickStreamDF, CLICK_STREAM_PRIMARY_KEYS, Some(ApplicationConstants.TIME_STAMP_COL))
+    val modifiedClickStreamDF: DataFrame = removeDuplicates(DATABASE_TEST_URL, clickStreamDF, CLICK_STREAM_PRIMARY_KEYS, Some(TIME_STAMP_COL))
 
     val expectedClickStreamDF: DataFrame = Seq(
       ("29839", "11/15/2020 15:11", "android", "B000078", "I7099", "B17543", "GOOGLE", "", "TRUE"),
@@ -237,7 +208,7 @@ class FileCleanserTest extends AnyFlatSpec {
       "vendor_id",
       "vendor_name")
 
-    val modifiedItemDF: DataFrame = removeDuplicates(itemDF, ITEM_PRIMARY_KEYS, None)
+    val modifiedItemDF: DataFrame = removeDuplicates(DATABASE_TEST_URL, itemDF, ITEM_PRIMARY_KEYS, None)
 
     val expectedItemDF: DataFrame = Seq(
       ("C6880", "2301", "D040", "Computers & Accessories", "3", "MOJO INC"),

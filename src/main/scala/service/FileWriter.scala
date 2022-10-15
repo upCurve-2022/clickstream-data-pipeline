@@ -6,12 +6,13 @@ import org.apache.spark.sql.DataFrame
 
 import java.nio.charset.StandardCharsets
 import java.util.Base64
+import scala.io.Source
 
 object FileWriter {
 
   def decryptPassword(encryptedPasswordPath: String): String = {
     //read from file and decrypt password
-    val source = scala.io.Source.fromFile(encryptedPasswordPath)
+    val source = Source.fromFile(encryptedPasswordPath)
     val encryptedPassword = try source.mkString finally source.close()
     val decoded = Base64.getDecoder.decode(encryptedPassword)
 

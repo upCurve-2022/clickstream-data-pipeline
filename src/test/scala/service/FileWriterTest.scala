@@ -2,7 +2,7 @@ package service
 
 import org.apache.spark.sql.SparkSession
 import org.scalatest.flatspec.AnyFlatSpec
-import service.FileWriter.decryptPassword
+import service.FileWriter._
 
 import java.io.{File, PrintWriter}
 
@@ -12,8 +12,8 @@ class FileWriterTest extends AnyFlatSpec {
 
   "decrypt password " should "decrypt password from the encrypted password file" in {
     //create a file with encrypted password "cGFzczEyMw=="
-    val ePassFile = new File("src/test/scala/e_password.txt")
     val ePass = "src/test/scala/e_password.txt"
+    val ePassFile = new File(ePass)
     val writer = new PrintWriter(ePassFile)
     writer.write("cGFzczEyMw==")
     writer.close()
@@ -30,7 +30,7 @@ class FileWriterTest extends AnyFlatSpec {
     val inputDF = service.FileReader.fileReader(helper.Helper.CLICK_STREAM_TEST_INPUT_PATH, "csv")
     val tableName = "unittest"
     val dbURL = helper.Helper.DATABASE_TEST_URL
-    service.FileWriter.fileWriter(dbURL, tableName, inputDF)
+    fileWriter(dbURL, tableName, inputDF)
   }
 
 }

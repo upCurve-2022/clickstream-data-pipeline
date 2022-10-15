@@ -1,4 +1,3 @@
-
 import com.typesafe.config.Config
 import exceptions.Exceptions._
 import org.apache.spark.internal.Logging
@@ -29,6 +28,10 @@ object ClickStream extends Logging {
       case ex: FilePathNotFoundException => log.error("FilePathNotFoundException:" + ex.message)
         exitCode = 1
       case ex: InvalidInputFormatException => log.error("InvalidInputFormatException: " + ex.message)
+        exitCode = 1
+      case ex: NullValuesExistException => log.error("NullValuesExistException: " + ex.message)
+        exitCode = 1
+      case ex: DuplicateValuesExistException => log.error("DuplicateValuesExistException: " + ex.message)
         exitCode = 1
     }
     finally {

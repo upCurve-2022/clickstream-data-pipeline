@@ -17,7 +17,7 @@ object JoinDatasets {
     joinedDataFrame
   }
 
-  def transformDataFrame(df: DataFrame): DataFrame = {
+  def enrichDataFrame(df: DataFrame): DataFrame = {
     val currentTime = Timestamp.valueOf(DateTimeFormatter.ofPattern(OUTPUT_TIME_STAMP_FORMAT).format(LocalDateTime.now()))
     val newDfJoin = df.withColumn(EVENT_DATE, to_date(df.col(TIME_STAMP_COL), DATE_FORMAT)).withColumn(RECORD_LOAD_TIME, lit(currentTime))
     newDfJoin

@@ -3,6 +3,9 @@ package transform
 import constants.ApplicationConstants.JOIN_TYPE
 import helper.Helper.JOINED_TABLE_SCHEMA
 import helper.Helper.FINAL_TABLE_SCHEMA
+import helper.Helper.createSparkSession
+import transform.JoinDatasets._
+import constants.ApplicationConstants.JOIN_KEY
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.scalatest.flatspec.AnyFlatSpec
 
@@ -11,7 +14,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class JoinTransformTest extends AnyFlatSpec {
-  implicit val spark: SparkSession = helper.Helper.createSparkSession()
+  implicit val spark: SparkSession = createSparkSession()
 
   import spark.implicits._
 
@@ -37,7 +40,14 @@ class JoinTransformTest extends AnyFlatSpec {
       ("B741", 192.2, "B003", "Furniture", 4, "LARVEL"),
       ("G6601", 92.5, "I116", "Clothing & Accessories", 1, "KOROL"),
       ("C1573", 33510.0, "F689", "Furniture", 1, "KOROL"),
-      ("H1406", 1292.5, "C182", "Apps & Games", 3, "MOJO")).toDF("item_id", "item_price", "product_type", "department_name", "vendor_id", "vendor_name")
+      ("H1406", 1292.5, "C182", "Apps & Games", 3, "MOJO")
+    ).toDF(
+      "item_id",
+      "item_price",
+      "product_type",
+      "department_name",
+      "vendor_id",
+      "vendor_name")
 
     val expectedDF = Seq(
 
@@ -48,7 +58,7 @@ class JoinTransformTest extends AnyFlatSpec {
     )
 
     val df: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(expectedDF), JOINED_TABLE_SCHEMA)
-    val outputDf: DataFrame = transform.JoinDatasets.joinDataFrame(clickStreamDF, itemDF, constants.ApplicationConstants.JOIN_KEY, JOIN_TYPE)
+    val outputDf: DataFrame = joinDataFrame(clickStreamDF, itemDF, JOIN_KEY, JOIN_TYPE)
 
     val result = df.except(outputDf)
     val ans = result.count()
@@ -67,7 +77,7 @@ class JoinTransformTest extends AnyFlatSpec {
     )
     val inputDf: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(inputDataSet), JOINED_TABLE_SCHEMA)
 
-    val outputDf: DataFrame = transform.JoinDatasets.transformDataFrame(inputDf)
+    val outputDf: DataFrame = enrichDataFrame(inputDf)
 
     val expectedDataSet = Seq(
       Row("B741", 30503, Timestamp.valueOf("2020-11-15 15:27:00"), "android", "B000078", "I7099", "facebook", true, true, 192.2, "B003", "Furniture", 4, "LARVEL", Date.valueOf("2020-11-15"), Timestamp.valueOf(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()))),

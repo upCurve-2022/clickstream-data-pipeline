@@ -1,7 +1,5 @@
 package constants
 
-import org.apache.spark.sql.types.{BooleanType, DateType, DoubleType, IntegerType, StringType, StructField, StructType, TimestampType}
-
 object ApplicationConstants {
   val APP_NAME = "spark.app.name"
   val APP_MASTER = "spark.app.master"
@@ -13,6 +11,23 @@ object ApplicationConstants {
   //primary keys
   val CLICK_STREAM_PRIMARY_KEYS: Seq[String] = Seq("session_id", "item_id")
   val ITEM_PRIMARY_KEYS: Seq[String] = Seq("item_id")
+
+  val FINAL_TABLE_COL = List("item_id",
+    "event_id",
+    "event_timestamp",
+    "user_device_type",
+    "session_id",
+    "visitor_id",
+    "redirection_source",
+    "is_add_to_cart",
+    "is_order_placed",
+    "item_price",
+    "product_type",
+    "department_name",
+    "vendor_id",
+    "vendor_name",
+    "event_d",
+    "record_load_ts")
 
   //constants for null values handling
   val COLUMN_NAME_DEFAULT_VALUE_CLICK_STREAM_MAP = Map(
@@ -70,10 +85,11 @@ object ApplicationConstants {
   val ENCRYPTED_DATABASE_PASSWORD: String = "data/encrypted_password.txt"
   val DATABASE_URL: String = "spark.app.databaseURL"
 
-  val ERR_TABLE_NULL_CHECK = "error_table_nullCheck"
-  val ERR_TABLE_DUP_CHECK = "error_table_duplicateCheck"
-
+  val NULL_TABLE_ITEM = "item_null_table"
+  val NULL_TABLE_CLICK_STREAM = "clickstream_null_table"
   val TABLE_NAME = "final_table"
+  val ERR_TABLE_DUP_CLICK_STREAM = "error_table_duplicate_clickstream"
+  val ERR_TABLE_DUP_ITEM = "error_table_duplicate_item"
 
   val DB_SOURCE = "jdbc"
   val JDBC_DRIVER = "com.mysql.cj.jdbc.Driver"

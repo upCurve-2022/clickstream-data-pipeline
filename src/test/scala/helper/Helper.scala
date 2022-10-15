@@ -7,12 +7,31 @@ object Helper {
   val DATABASE_TEST_URL = "jdbc:mysql://localhost:3306/target_project_test"
   val CLICK_STREAM_TEST_INPUT_PATH = "data/test.csv"
   val INPUT_TEST_FILE_FORMAT = "csv"
+  val SCHEMA_TEST_PATH = "conf/final_clickstream_table_schema.json"
+
+  val FINAL_INCORRECT_SCHEMA: StructType = StructType(List(
+    StructField("item_id", StringType, nullable = true),
+    StructField("id", StringType, nullable = false),
+    StructField("event_timestamp", TimestampType, nullable = false),
+    StructField("device_type", StringType, nullable = true),
+    StructField("session_id", StringType, nullable = true),
+    StructField("visitor_id", StringType, nullable = false),
+    StructField("redirection_source", StringType, nullable = true),
+    StructField("is_add_to_cart", BooleanType, nullable = true),
+    StructField("is_order_placed", BooleanType, nullable = true),
+    StructField("item_price", IntegerType, nullable = true),
+    StructField("product_type", StringType, nullable = true),
+    StructField("department_name", StringType, nullable = true),
+    StructField("vendor_id", StringType, nullable = true),
+    StructField("vendor_name", StringType, nullable = true),
+    StructField("event_d", DateType, nullable = true),
+    StructField("record_load_ts", TimestampType, nullable = true)))
 
   val FINAL_TABLE_SCHEMA: StructType = StructType(List(
     StructField("item_id", StringType, nullable = false),
-    StructField("id", IntegerType, nullable = false),
+    StructField("event_id", IntegerType, nullable = false),
     StructField("event_timestamp", TimestampType, nullable = false),
-    StructField("device_type", StringType, nullable = true),
+    StructField("user_device_type", StringType, nullable = true),
     StructField("session_id", StringType, nullable = false),
     StructField("visitor_id", StringType, nullable = false),
     StructField("redirection_source", StringType, nullable = false),

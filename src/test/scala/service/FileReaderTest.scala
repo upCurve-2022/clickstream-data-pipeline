@@ -2,6 +2,7 @@ package service
 
 import org.apache.spark.sql.SparkSession
 import org.scalatest.flatspec.AnyFlatSpec
+import service.FileReader.fileReader
 
 class FileReaderTest extends AnyFlatSpec {
 
@@ -11,12 +12,12 @@ class FileReaderTest extends AnyFlatSpec {
 
   "file reader " should "return a return a dataframe with records " in {
 
-    val outputDF = service.FileReader.fileReader(helper.Helper.CLICK_STREAM_TEST_INPUT_PATH, helper.Helper.INPUT_TEST_FILE_FORMAT)
+    val outputDF = fileReader(helper.Helper.CLICK_STREAM_TEST_INPUT_PATH, helper.Helper.INPUT_TEST_FILE_FORMAT)
     val expectedDF = Seq(
-      ("29839", null, "android", "B000078", "I7099", "B17543", "GOOGLE", null, "TRUE"),
-      ("30504", "11/15/2020 15:27", "android", "B000078", "I7099", "B19304", "LinkedIn", null, "TRUE"),
-      ("30334", "11/15/2020 15:23", "android", "B000078", "I7099", "B29093", "Youtube", null, null),
-      ("30385", "11/15/2020 15:24", "android", "B000078", "I7099", "D8142", "google", "TRUE", null))
+      (29839, null, "android", "B000078", "I7099", "B17543", "GOOGLE", null, true),
+      (30504, "11/15/2020 15:27", "android", "B000078", "I7099", "B19304", "LinkedIn", null, true),
+      (30334, "11/15/2020 15:23", "android", "B000078", "I7099", "B29093", "Youtube", null, null),
+      (30385, "11/15/2020 15:24", "android", "B000078", "I7099", "D8142", "google", true, null))
       .toDF("id",
         "event_timestamp",
         "device_type",

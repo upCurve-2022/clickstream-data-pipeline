@@ -1,19 +1,38 @@
 package cleanser
 
-import org.apache.spark.sql.DataFrame
+import constants.ApplicationConstants.{ERR_TABLE_DUP_CLICK_STREAM, ERR_TABLE_DUP_ITEM}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types.{StructField, StructType}
+import service.FileWriter
 import utils.ApplicationUtils.check
+
+import scala.collection.JavaConversions._
 
 object FileCleanser {
 
   /** *******************REMOVING NULLS FROM THE DATASET*************************** */
   //Handling null values - removing rows when primary key is null
-  def removeRows(inputDF: DataFrame, primaryColumns: Seq[String]): DataFrame = {
+  def removeRows(inputDF: DataFrame, primaryColumns: Seq[String], databaseUrl: String, tableName: String)(implicit spark: SparkSession): DataFrame = {
     check(inputDF, primaryColumns)
     val rowEliminatedDF = inputDF.na.drop("any", primaryColumns)
-    rowEliminatedDF
+    var count = 0
+    var errorList: List[Row] = List[Row]()
+    rowEliminatedDF.collect().foreach(row => {
+      row.toSeq.foreach(c => {
+        if (c == "null" || c == "NULL" || c == "" || c == null) {
+          count = count + 1
+        }
+      })
+      if (count > row.length * 0.6) {
+        errorList = errorList :+ row
+      }
+      count = 0
+    })
+    val errorDF = spark.createDataFrame(errorList, inputDF.schema)
+    FileWriter.fileWriter(databaseUrl, tableName, errorDF)
+    val nullsRemDF = rowEliminatedDF.except(errorDF)
+    nullsRemDF
   }
 
   //Handling null values - filling null value with a custom value
@@ -39,29 +58,29 @@ object FileCleanser {
     outputDF
   }
 
-  //modifies the datatype of the columns in a dataframe
-  def colDatatypeModifier(inputDF: DataFrame, colDatatype: List[(String, String)]): DataFrame = {
-    val colList = colDatatype.map(x => x._1)
-    check(inputDF, colList)
-    val outputDF = inputDF.select(colDatatype.map { x => inputDF.col(x._1).cast(x._2) }: _*)
-    outputDF
-  }
-
   /** ****************REMOVING DUPLICATES FROM THE DATASET***************** */
   //Handling Duplicates
-  def removeDuplicates(inputDF: DataFrame, primaryKeyCols: Seq[String], orderByCol: Option[String] = None): DataFrame = {
+  def removeDuplicates(databaseUrl:String, inputDF: DataFrame, primaryKeyCols: Seq[String], orderByCol: Option[String]): DataFrame = {
     check(inputDF, primaryKeyCols)
     orderByCol match {
       case Some(column) =>
         //Remove duplicates from the click stream dataset
-        check(inputDF, Seq(column))
         val dfRemoveDuplicates = inputDF.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col): _*).orderBy(desc(column))))
           .filter(col("rn") === 1).drop("rn")
-        dfRemoveDuplicates
 
+        //putting duplicate records to the duplicate error table
+        val errorDuplicateDF = inputDF.except(dfRemoveDuplicates)
+        FileWriter.fileWriter(databaseUrl,ERR_TABLE_DUP_CLICK_STREAM, errorDuplicateDF)
+
+        dfRemoveDuplicates
+      //Remove duplicates from the item dataset
       case None =>
-        //Remove duplicates from the item dataset
         val dfRemoveDuplicates = inputDF.dropDuplicates(primaryKeyCols)
+
+        //putting duplicate records to the duplicate error table
+        val errorDuplicateDF = inputDF.except(dfRemoveDuplicates)
+        FileWriter.fileWriter(databaseUrl,ERR_TABLE_DUP_ITEM, errorDuplicateDF)
+
         dfRemoveDuplicates
     }
   }
