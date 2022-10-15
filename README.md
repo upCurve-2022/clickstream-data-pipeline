@@ -1,4 +1,4 @@
-#CLICK STREAM DATA PIPELINE                                                                                                                                                              
+# CLICK STREAM DATA PIPELINE                                                                                                                                                              
 The cleanse function performs various cleansing operations like modification of
 column data types, removal of NULLs and duplicates and transformation (joins) to meet the
 functional requirements.
