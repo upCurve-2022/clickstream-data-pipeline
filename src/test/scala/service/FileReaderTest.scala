@@ -1,6 +1,5 @@
 package service
 
-import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SparkSession}
 import org.scalatest.flatspec.AnyFlatSpec
 import service.FileReader.fileReader
