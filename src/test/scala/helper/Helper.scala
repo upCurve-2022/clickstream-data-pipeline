@@ -5,7 +5,7 @@ import org.apache.spark.sql.types.{BooleanType, DateType, DoubleType, IntegerTyp
 
 object Helper {
   val DATABASE_TEST_URL = "jdbc:mysql://localhost:3306/target_project_test"
-  val CLICK_STREAM_TEST_INPUT_PATH = "data/test.csv"
+  val CLICK_STREAM_TEST_INPUT_PATH = "data/clickstream_test.csv"
   val INPUT_TEST_FILE_FORMAT = "csv"
   val SCHEMA_TEST_PATH = "conf/final_clickstream_table_schema.json"
 
