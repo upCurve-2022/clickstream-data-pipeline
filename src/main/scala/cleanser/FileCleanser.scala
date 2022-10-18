@@ -62,25 +62,23 @@ object FileCleanser {
   //Handling Duplicates
   def removeDuplicates(databaseUrl:String, inputDF: DataFrame, primaryKeyCols: Seq[String], orderByCol: Option[String]): DataFrame = {
     check(inputDF, primaryKeyCols)
+    
     orderByCol match {
       case Some(column) =>
         //Remove duplicates from the click stream dataset
         val dfRemoveDuplicates = inputDF.withColumn("rn", row_number().over(Window.partitionBy(primaryKeyCols.map(col): _*).orderBy(desc(column))))
           .filter(col("rn") === 1).drop("rn")
-
-        //putting duplicate records to the duplicate error table
+        //Put duplicate records to the duplicate error table
         val errorDuplicateDF = inputDF.except(dfRemoveDuplicates)
         FileWriter.fileWriter(databaseUrl,ERR_TABLE_DUP_CLICK_STREAM, errorDuplicateDF)
-
         dfRemoveDuplicates
-      //Remove duplicates from the item dataset
+      
+        //Remove duplicates from the item dataset
       case None =>
         val dfRemoveDuplicates = inputDF.dropDuplicates(primaryKeyCols)
-
-        //putting duplicate records to the duplicate error table
+        //Put duplicate records to the duplicate error table
         val errorDuplicateDF = inputDF.except(dfRemoveDuplicates)
         FileWriter.fileWriter(databaseUrl,ERR_TABLE_DUP_ITEM, errorDuplicateDF)
-
         dfRemoveDuplicates
     }
   }
