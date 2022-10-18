@@ -73,6 +73,18 @@ object Helper {
     StructField("is_order_placed", BooleanType)
   ))
 
+  val CLICK_STREAM_READER_SCHEMA: StructType = StructType(Array(
+    StructField("id", IntegerType),
+    StructField("event_timestamp", StringType),
+    StructField("device_type", StringType),
+    StructField("session_id", StringType),
+    StructField("visitor_id", StringType),
+    StructField("item_id", StringType),
+    StructField("redirection_source", StringType),
+    StructField("is_add_to_cart", BooleanType),
+    StructField("is_order_placed", BooleanType)
+  ))
+
   def createSparkSession(): SparkSession = {
     implicit val spark: SparkSession = SparkSession.getActiveSession.getOrElse(
       SparkSession.builder
